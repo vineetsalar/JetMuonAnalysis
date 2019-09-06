@@ -1,0 +1,16 @@
+# ignore objects and archives
+*.so
+*.pcm
+*.d
+
+#ignore data files
+*.root
+
+#ignore figures
+Plots
+
+# Ignore .DS_Store, if mac for some reason makes this file
+.DS_Store
+
+#Ignore CMS style file
+CMS
