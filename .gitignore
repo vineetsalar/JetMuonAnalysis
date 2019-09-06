@@ -6,10 +6,12 @@
 
 #ignore data files
 *.root
-
+*.png
+*.pdf
 #ignore figures
 Plots
 Figures
+plots
 # Ignore .DS_Store, if mac for some reason makes this file
 .DS_Store
 
