@@ -8,7 +8,7 @@
 
 #ignore figures
 Plots
-
+Figures
 # Ignore .DS_Store, if mac for some reason makes this file
 .DS_Store
 
