@@ -14,3 +14,7 @@ Plots
 
 #Ignore CMS style file
 CMS
+
+#Ignore latex tables
+OutTexFile
+OutTxtFile
