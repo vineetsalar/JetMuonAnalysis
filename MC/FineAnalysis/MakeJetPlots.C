@@ -43,9 +43,13 @@
 #include <iomanip>
 #include <fstream>
 
+#include "TDirectory.h"
 #include "THStack.h"
 #include "TRandom3.h"
 #include "THnSparse.h"
+
+
+
 
 
 // These functions are now in seperate files
@@ -119,7 +123,7 @@ const Double_t GenMuonPtBinEdges[NBins_GenMuonPt_VarSize]={1.0, 3.0, 5.0, 7.0, 9
 
 
 void MakeGenJetPlots(TFile *file_in, Double_t GenJetPtMin,Double_t GenMuPtCut);
-void MakeRecJetPlots(TFile *file_in, Double_t RecJetPtMin);
+void MakeRecJetPlots(TFile *file_in, TFile *file_out, Double_t RecJetPtMin);
 
 void MakeCSVTagPlots(TFile *file_in,TFile *file_out);
 void MakeMuonPlots(TFile *file_in);
@@ -218,10 +222,10 @@ void MakeJetPlots()
   TFile *OutFile = new TFile("OutFile_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB.root","RECREATE");
 
   //MakeGenJetPlots(file_in, GenJetPtMin, GenMuPtCut);
-  //MakeRecJetPlots(file_in,RecJetPtMin);
+  MakeRecJetPlots(file_in, OutFile, RecJetPtMin);
   //MakeMuonPlots(file_in);
-  MakeMuonIDVarStudy(file_in);
-  //MakeCSVTagPlots(file_in, OutFile);
+  //MakeMuonIDVarStudy(file_in);
+  MakeCSVTagPlots(file_in, OutFile);
 
   //OutFile->Write();
   //OutFile->Close();

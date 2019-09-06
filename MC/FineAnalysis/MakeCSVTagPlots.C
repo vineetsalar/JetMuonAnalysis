@@ -1300,6 +1300,12 @@ void MakeCSVTagPlots(TFile *file_in,TFile *file_out)
   //=================================================================================//
   
   file_out->cd();
+
+
+  // create a subdirectory "CSVTagPlots" in the output root file
+  TDirectory *cd_csvplots = file_out->mkdir("CSVTagPlots");
+  cd_csvplots->cd();    // make the "tof" directory the current directory
+
   
   Canvas_hs1_MuPtRel_All->Write();
 
@@ -1334,7 +1340,7 @@ void MakeCSVTagPlots(TFile *file_in,TFile *file_out)
   hist_MuPtRel_CSVVeto_B->Write();
   hist_MuPtRel_CSVVeto_C->Write();
   
-  
+  file_out->cd();
   
   return;
 

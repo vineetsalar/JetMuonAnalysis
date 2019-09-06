@@ -1134,7 +1134,7 @@ void JetAnalyzer::Loop()
      //if(pthat > 460) continue; //no crosssection above 460 on wiki     
 
      //puting HLT same as on data
-     if(HLT_HIL3Mu5_AK4PFJet30_v1==0)continue;
+     if(TriggerApplied == 1 && HLT_HIL3Mu5_AK4PFJet30_v1==0)continue;
 
      if(jentry%100000==0){
        
@@ -1161,11 +1161,18 @@ void JetAnalyzer::Loop()
      }
 
 
-     //================== Some Global Cuts =============================//
-     Double_t GenJetPtMinCut = 60.0; Double_t JetPtMinCut = 60.0;
-     Double_t GenJetEtaMinCut = 2.0; Double_t JetEtaMinCut = 2.0;
-     Double_t GenMuonPtMin = 5.0; Double_t MuonPtMin = 5.0;
 
+     
+     //================== Some Global Cuts =============================//
+     const Int_t TriggerApplied = 0;
+
+     const Double_t GenJetPtMinCut = 60.0; const Double_t JetPtMinCut = 60.0;
+     const Double_t GenJetEtaMinCut = 2.0; const Double_t JetEtaMinCut = 2.0;
+     const Double_t GenMuonPtMin = 5.0; const Double_t MuonPtMin = 5.0;
+
+
+
+     
      //======================== Filling all Gen Muons ================================//
      //======================== Make vector of Gen Muons ======================//
      std::vector<TLorentzVector> GenMuons;

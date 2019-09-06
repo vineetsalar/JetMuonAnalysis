@@ -1,11 +1,6 @@
 #include "MyMethod.h"
 
-
-
-
-
-
-void MakeRecJetPlots(TFile *file_in, Double_t RecJetPtMin)
+void MakeRecJetPlots(TFile *file_in, TFile *file_out, Double_t RecJetPtMin)
 {
 
   setTDRStyle();
@@ -47,7 +42,8 @@ void MakeRecJetPlots(TFile *file_in, Double_t RecJetPtMin)
 
 
   // Get the 1D histograms of Jet variables 
-  // Jet histo for all flavours
+
+  // Jet histograms for all flavours
   TH1D *hist_JetPt=(TH1D*)file_in->Get("histJetPt");
   TH1D *hist_JetEta=(TH1D*)file_in->Get("histJetEta");
   TH1D *hist_JetPhi=(TH1D*)file_in->Get("histJetPhi");
@@ -1386,13 +1382,24 @@ void MakeRecJetPlots(TFile *file_in, Double_t RecJetPtMin)
     dataFile<<endl<<endl<<endl;
     }
   cout<<endl<<endl;
-
-  
   
   dataFile<<Str3<<"end{document}"<<endl<<endl;
-  
 
+  //===================================================================================//
+  //============== write histograms inside the output file ============================//
+  //==================================================================================//
+  file_out->cd();
 
+  // create a subdirectory "RecJetPlots" in this file
+  TDirectory *cd_recplots = file_out->mkdir("RecJetPlots");
+  cd_recplots->cd();    // make the "tof" directory the current directory
+
+   
+  hist_JetPt->Write();
+  hist_JetEta->Write();
+  hist_JetPhi->Write();
+
+  file_out->cd();
 
 
 
