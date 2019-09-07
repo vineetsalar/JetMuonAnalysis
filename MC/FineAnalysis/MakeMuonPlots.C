@@ -62,7 +62,6 @@ void MakeMuonPlots(TFile *file_in)
 
 
   //Reco muons inside the Jets
-  
   // Get the 3D histo of Muon Eta, Muon Pt and Muon phi
   // This have variables where muon is inside Jet
   TH3D *hist_Master_MuEta_MuPt_MuPhi=(TH3D*)file_in->Get("hist_Master_MuEta_MuPt_MuPhi");
