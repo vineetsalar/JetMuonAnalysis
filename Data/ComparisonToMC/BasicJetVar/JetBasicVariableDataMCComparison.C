@@ -17,9 +17,6 @@
 #include "../../MyClass/MyMethod.h"
 
 
-
-
-
 Int_t Scale_Hist_Index=0;
 TH1D *Scale_Hist(TH1D *InHist, Double_t Weight, Int_t index);
 
@@ -57,7 +54,9 @@ void JetBasicVariableDataMCComparison()
   
   
   // Open the file with PP Dijet MC 
-  TFile *file_MC =  new TFile("InFiles/OutFile_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB.root","R");
+  //TFile *file_MC =  new TFile("InFiles/OutFile_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB.root","R");
+
+  TFile *file_MC =  new TFile("InFiles/OutFile_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_TriggerApplied.root","R");
 
   //Get the MC Jet Pt, Eta, Phi histograms
   TH1D *hist_mc_JetPt = (TH1D*)file_MC->Get("RecJetPlots/histJetPt");
@@ -67,6 +66,8 @@ void JetBasicVariableDataMCComparison()
   JetVarMethod->ScaleHistByItsIntegral(hist_mc_JetPt);
   JetVarMethod->ScaleHistByItsIntegral(hist_mc_JetEta);
   JetVarMethod->ScaleHistByItsIntegral(hist_mc_JetPhi);
+
+  //cout<<hist_mc_JetPt->Integral("width")<<"  "<<hist_mc_JetEta->Integral("width")<<"  "<<hist_mc_JetPhi->Integral("width")<<endl;
 
   cout<<hist_mc_JetPt->Integral()<<"  "<<hist_mc_JetEta->Integral()<<"  "<<hist_mc_JetPhi->Integral()<<endl;
   

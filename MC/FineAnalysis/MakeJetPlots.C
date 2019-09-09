@@ -192,12 +192,15 @@ void MakeJetPlots()
   //TFile *file_in =  new TFile("InRootFiles/DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_MuJetTriggerApplied_29Aug2019_All.root","R");
 
   //PP 2017 MC (Added reco mu-gen mu matched histo) : Run for MC muon matching test
-  TFile *file_in =  new TFile("InRootFiles/DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_All03Sep2019.root","R");
+  //TFile *file_in =  new TFile("InRootFiles/DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_All03Sep2019.root","R");
 
   //PP 2017 MC (Added reco mu-gen mu matched histo) : Run for MC muon matching test
   //TFile *file_in =  new TFile("InRootFiles/DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_MCMatched_04Sep19_All.root","R");
 
+  //test skim file (changes the number of bins and maximum jet pt for jet histos)
+  //TFile *file_in =  new TFile("/Users/vineet/UICWork/JetMuonAnalysis/MC/JetAnalyzer/DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_28Aug2019.root","R");
 
+  TFile *file_in =  new TFile("/Users/vineet/UICWork/JetMuonAnalysis/MC/JetAnalyzer/JetAnalyzerOutPut_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_TriggerApplied_28Aug2019.root","R");
 
 
 
@@ -219,12 +222,12 @@ void MakeJetPlots()
   tr->SetTextSize(0.04);
 
   
-  TFile *OutFile = new TFile("OutFile_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB.root","RECREATE");
+  TFile *OutFile = new TFile("OutFile_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_TriggerApplied.root","RECREATE");
 
   //MakeGenJetPlots(file_in, GenJetPtMin, GenMuPtCut);
   MakeRecJetPlots(file_in, OutFile, RecJetPtMin);
   //MakeMuonPlots(file_in);
-  //MakeMuonIDVarStudy(file_in);
+  MakeMuonIDVarStudy(file_in);
   MakeCSVTagPlots(file_in, OutFile);
 
   //OutFile->Write();

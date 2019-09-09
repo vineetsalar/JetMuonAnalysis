@@ -33,6 +33,7 @@ TH1D *MyMethod::RatioHistogram(TH1 *InHistNum, TH1 *InHistDeno, Int_t RebinFac)
 
 void MyMethod::ScaleHistByItsIntegral(TH1 *InHist)
 {
+  //Double_t Integral_Val = InHist->Integral("width");
   Double_t Integral_Val = InHist->Integral(); 
   Double_t ScaleFac = 1.0/Integral_Val;
   InHist->Scale(ScaleFac);
