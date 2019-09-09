@@ -47,7 +47,7 @@
 //#include "CMS/CMS_lumi.C"
 
 Double_t getPtHatWeight(const Double_t ptHat);
-Double_t MuonMass = 0.1056583745;
+const Double_t MuonMass = 0.1056583745;
 
 Double_t getDR  ( Double_t eta1, Double_t phi1, Double_t eta2, Double_t phi2);
 //Double_t getDPHI( Double_t phi1, Double_t phi2);
@@ -55,6 +55,11 @@ Double_t plotDPHI( Double_t phi1, Double_t phi2);
 
 Int_t SoftMuonIDCuts(Int_t isGlobal, Int_t isTracker, Int_t isGoodMuon, Int_t nPixWMea, Int_t nTrkWMea, float D0, float DZ);
 Int_t TightMuonIDCuts(Int_t isGlobal, Int_t isTracker, float muEta, float muChi2NDF, float muInnerD0, float muInnerDz, Int_t muMuonHits, Int_t muStations, Int_t muTrkLayers, Int_t muPixelHits);
+
+Int_t TightMuonIDCuts_OtherThanStudied(Int_t isGlobal, Int_t isTracker, float muChi2NDF, float muInnerD0, float muInnerDz, Int_t muMuonHits, Int_t muStations,
+				       Int_t muTrkLayers, Int_t muPixelHits, Int_t CutNumberStudied);
+
+
 
 
 double  deltaR(TLorentzVector GenMuon, TLorentzVector RecoMuon);
@@ -185,9 +190,38 @@ void JetAnalyzer::Loop()
   //MC Matching applied
   //TFile *OutFile = new TFile("DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_MCMatched_01Aug2019.root","Recreate");
 
-  TFile *OutFile = new TFile("DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_28Aug2019.root","Recreate");
+  TFile *OutFile = new TFile("JetAnalyzerOutPut_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_TriggerApplied_28Aug2019.root","Recreate");
   
 
+
+
+
+  //============== Basic Event Level Histo ============================//
+  // Centrality
+  const Double_t minCentrality = -0.75;   // Minimum centrality bin, is negative since hiBin is -1 for pp
+  const Double_t maxCentrality = 100.25;  // Maximum centrality bin
+  const Int_t nCentralityBins = 202;      // Number of centrality bins
+
+  TH1D *histCentrality= new TH1D("histCentrality","histCentrality", nCentralityBins,minCentrality,maxCentrality);
+  histCentrality->GetXaxis()->SetTitle("Centrality");
+  histCentrality->GetYaxis()->SetTitle("Entries");
+  
+  
+  TH1D *histEvtVtxX= new TH1D("histEvtVtxX","histEvtVtxX",200,-1.0,1.0);
+  histEvtVtxX->GetXaxis()->SetTitle("EvtVtxX");
+  histEvtVtxX->GetYaxis()->SetTitle("Entries");
+
+  
+  TH1D *histEvtVtxY= new TH1D("histEvtVtxY","histEvtVtxY",200,-1.0,1.0);
+  histEvtVtxY->GetXaxis()->SetTitle("EvtVtxY");
+  histEvtVtxY->GetYaxis()->SetTitle("Entries");
+
+  TH1D *histEvtVtxZ= new TH1D("histEvtVtxZ","histEvtVtxZ",200,-25.0,25.0);
+  histEvtVtxZ->GetXaxis()->SetTitle("EvtVtxZ");
+  histEvtVtxZ->GetYaxis()->SetTitle("Entries");
+
+
+  
   TH1D *histNumberOfJets = new TH1D("histNumberOfJets","histNumberOfJets",30,0.5,30.5);
   histNumberOfJets->GetXaxis()->SetTitle("Jet Multiplicity");
   histNumberOfJets->GetYaxis()->SetTitle("Entries");
@@ -202,15 +236,20 @@ void JetAnalyzer::Loop()
   //TH1* histPtHatBins = new TH1D("EventsPtHatBins","EventsPtHatBins", NBINS,edges);
   //const Int_t NBinsGenJetPt = 8;
   //Double_t GenJetPtEdges[NBinsGenJetPt+1] = {30.0, 50.0, 70.0, 100.0, 130.0, 170.0, 220.0, 300.0,450.0};
+  
 
-
-  Int_t NBinsGenJetPt =100;
-  Double_t GenJetPtMin =0.0;
-  Double_t GenJetPtMax = 450.0;
-
-  Double_t Pi = TMath::Pi();
-  Double_t GenJetPhiMin =-Pi;
-  Double_t GenJetPhiMax =Pi;
+  const Int_t NBinsGenJetPt =500;
+  const Double_t GenJetPtMin =0.0;
+  const Double_t GenJetPtMax = 500.0;
+  
+  const Int_t NBinsGenJetEta = 200;
+  const Double_t GenJetEtaMin = -3.0;
+  const Double_t GenJetEtaMax = 3.0;
+  
+  const Double_t Pi = TMath::Pi();
+  const Int_t NBinsGenJetPhi = 200;
+  const Double_t GenJetPhiMin = -Pi;
+  const Double_t GenJetPhiMax = Pi;
   
   
   TH1D *histGenJetPt= new TH1D("histGenJetPt","histGenJetPt",NBinsGenJetPt,GenJetPtMin,GenJetPtMax);
@@ -218,12 +257,12 @@ void JetAnalyzer::Loop()
   histGenJetPt->GetXaxis()->SetTitle("GenJet Pt (GeV/c)");
   histGenJetPt->GetYaxis()->SetTitle("Entries");
   
-  TH1D *histGenJetEta = new TH1D("histGenJetEta","histGenJetEta",100,-5,5);
+  TH1D *histGenJetEta = new TH1D("histGenJetEta","histGenJetEta",NBinsGenJetEta,GenJetEtaMin,GenJetEtaMax);
   histGenJetEta->Sumw2();
   histGenJetEta->GetXaxis()->SetTitle("GenJet #eta");
   histGenJetEta->GetYaxis()->SetTitle("Entries");
   
-  TH1D *histGenJetPhi = new TH1D("histGenJetPhi","histGenJetPhi",100,GenJetPhiMin,GenJetPhiMax);
+  TH1D *histGenJetPhi = new TH1D("histGenJetPhi","histGenJetPhi", NBinsGenJetPhi,GenJetPhiMin,GenJetPhiMax);
   histGenJetPhi->Sumw2();
   histGenJetPhi->GetXaxis()->SetTitle("GenJet #phi");
   histGenJetPhi->GetYaxis()->SetTitle("Entries");
@@ -283,9 +322,9 @@ void JetAnalyzer::Loop()
   //Double_t FlavourMin =0.5;
   //Double_t FlavourMax =6.5;
 
-  Int_t NFlavour = 9;
-  Double_t FlavourMin = 0.5;
-  Double_t FlavourMax = 9.5;
+  const Int_t NFlavour = 9;
+  const Double_t FlavourMin = 0.5;
+  const Double_t FlavourMax = 9.5;
 
 
   TH2D *hist_GenMaster_GenJetPt_Flavour= new TH2D("hist_GenMaster_GenJetPt_Flavour","hist_GenMaster_GenJetPt_Flavour",NBinsGenJetPt,GenJetPtMin,GenJetPtMax,NFlavour,FlavourMin,FlavourMax);
@@ -296,18 +335,17 @@ void JetAnalyzer::Loop()
 
   //==================================== Gen Muon Histograms ==================================================//
 
-  Int_t NBinsGenMuEta = 100;
-  Double_t GenMuEtaMin = -3.0;
-  Double_t GenMuEtaMax = 3.0;
+  const Int_t NBinsGenMuPt = 150;
+  const Double_t GenMuPtMin = 0.0;
+  const Double_t GenMuPtMax = 150.0;
 
-  Int_t NBinsGenMuPt = 100;
-  Double_t GenMuPtMin = 0.0;
-  Double_t GenMuPtMax = 100.0;
+  const Int_t NBinsGenMuEta = 200;
+  const Double_t GenMuEtaMin = -3.0;
+  const Double_t GenMuEtaMax = 3.0;
 
-  Int_t NBinsGenMuPhi = 100;
-
-  Double_t GenMuPhiMin = -Pi;
-  Double_t GenMuPhiMax = Pi;
+  const Int_t NBinsGenMuPhi = 200;
+  const Double_t GenMuPhiMin = -Pi;
+  const Double_t GenMuPhiMax = Pi;
     
   // All the Gen Muons
   TH3D *hist_GenMaster_GenMuEta_GenMuPt_GenMuPhi = new TH3D("hist_GenMaster_GenMuEta_GenMuPt_GenMuPhi","hist_GenMaster_GenMuEta_GenMuPt_GenMuPhi",NBinsGenMuEta,GenMuEtaMin,GenMuEtaMax,NBinsGenMuPt,GenMuPtMin,GenMuPtMax,NBinsGenMuPhi,GenMuPhiMin,GenMuPhiMax);
@@ -411,7 +449,6 @@ void JetAnalyzer::Loop()
   histGenMuonGenJetPtLight->GetXaxis()->SetTitle("GenMuonGenJet Pt (GeV/c) (u,d,s)");
   histGenMuonGenJetPtLight->GetYaxis()->SetTitle("Entries");
 
-
   
   TH1D *histGenMuonGenJetPtUp = new TH1D("histGenMuonGenJetPtUp","histGenMuonGenJetPtUp",NBinsGenJetPt,GenJetPtMin,GenJetPtMax);
   histGenMuonGenJetPtUp->GetXaxis()->SetTitle("Jet Pt (GeV/c) (u)");
@@ -460,21 +497,34 @@ void JetAnalyzer::Loop()
   //=========================================== reco jet histos ========================================//
   //====================================================================================================//
   
-  Int_t NBinsJetPt =100;
-  Double_t JetPtMin =0.0;
-  Double_t JetPtMax = 450.0;
+  const Int_t NBinsJetPt =  500;
+  const Double_t JetPtMin = 0.0;
+  const Double_t JetPtMax = 500.0;
+
   
-  Int_t NBinsMuEta = 100;
-  Double_t MuEtaMin = -3.0;
-  Double_t MuEtaMax = 3.0;
+  const Int_t NBinsJetEta = 200;
+  const Double_t JetEtaMin = -3.0;
+  const Double_t JetEtaMax = 3.0;
   
-  Int_t NBinsMuPt = 100;
-  Double_t MuPtMin = 0.0;
-  Double_t MuPtMax = 100.0;
   
-  Int_t NBinsMuPhi = 100;
-  Double_t MuPhiMin = -Pi;
-  Double_t MuPhiMax = Pi;
+  const Int_t NBinsJetPhi = 200;
+  const Double_t JetPhiMin = -Pi;
+  const Double_t JetPhiMax = Pi;
+
+
+  
+  const Int_t NBinsMuPt = 150;
+  const Double_t MuPtMin = 0.0;
+  const Double_t MuPtMax = 150.0;
+  
+  const Int_t NBinsMuEta = 200;
+  const Double_t MuEtaMin = -3.0;
+  const Double_t MuEtaMax = 3.0;
+  
+  
+  const Int_t NBinsMuPhi = 200;
+  const Double_t MuPhiMin = -Pi;
+  const Double_t MuPhiMax = Pi;
   
   
   TH2D *hist_Master_JetPt_Flavour = new TH2D("hist_Master_JetPt_Flavour","hist_Master_JetPt_Flavour",NBinsJetPt,JetPtMin,JetPtMax,NFlavour,FlavourMin,FlavourMax);
@@ -497,11 +547,11 @@ void JetAnalyzer::Loop()
   histJetPt->GetXaxis()->SetTitle("Jet Pt (GeV/c)");
   histJetPt->GetYaxis()->SetTitle("Entries");
   
-  TH1D *histJetEta = new TH1D("histJetEta","histJetEta",100,-5,5);
+  TH1D *histJetEta = new TH1D("histJetEta","histJetEta",NBinsJetEta,JetEtaMin,JetEtaMax);
   histJetEta->GetXaxis()->SetTitle("Jet #eta");
   histJetEta->GetYaxis()->SetTitle("Entries");
   
-  TH1D *histJetPhi = new TH1D("histJetPhi","histJetPhi",100,-Pi,Pi);
+  TH1D *histJetPhi = new TH1D("histJetPhi","histJetPhi",NBinsJetPhi,JetPhiMin,JetPhiMax);
   histJetPhi->GetXaxis()->SetTitle("Jet #phi");
   histJetPhi->GetYaxis()->SetTitle("Entries");
 
@@ -985,7 +1035,6 @@ void JetAnalyzer::Loop()
   //================================= Muon Quality Cut Histograms Ends ===================================================================//
   //=======================================================================================================================================//
 
-
   TH1D *histDiMuonInvMass = new TH1D("histDiMuonInvMass","histDiMuonInvMass",100,0,100);
   histDiMuonInvMass->GetXaxis()->SetTitle("DiMuon InvMass (GeV/c)");
   histDiMuonInvMass->GetYaxis()->SetTitle("Entries");
@@ -1101,77 +1150,93 @@ void JetAnalyzer::Loop()
   histWPtHatBins->Sumw2();
   
 
+  //==================================================================//
+  //============ some global Cuts ===============================//
+  //=================================================================//
+  const Int_t TriggerApplied = 1;
+
+  const Double_t GenJetPtMinCut = 60.0; const Double_t JetPtMinCut = 60.0;
+  const Double_t GenJetEtaMinCut = 2.0; const Double_t JetEtaMinCut = 2.0;
+
+  const Double_t GenMuonPtMin = 5.0; const Double_t MuonPtMin = 5.0;
+  const Double_t GenMuonEtaCut = 2.4; const Double_t MuonEtaCut = 2.4;
+
+  
   if (fChain == 0) return;
   
   Long64_t nentries = fChain->GetEntriesFast();
   //nentries=10;
+
+
   
   cout<< nentries <<" entries in "<< fChain->GetName()<<endl;
   //Double_t Temp_Entries = 1595520;
   Long64_t nbytes = 0, nb = 0;
-  
+
+  //Loop over the skim entries
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
+
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     fChain->GetEntry(jentry); 
 
 
     // if (Cut(ientry) < 0) continue;
-    
     //Double_t PtHatWeight = getPtHatWeight(pthat);
     //for pp 2017 MC
     Double_t PtHatWeight = 1.0;
+
+    //pp 2017 MC weight read from the skim tree
     //weight factor
     Double_t EventWeight = weight; 
     
     //for min bias MC
     //EventWeight =1;
     //PtHatWeight=1.0;
+    
     //pt hat histogram filling
-     histPtHatBins->Fill(pthat);
-     histWPtHatBins->Fill(pthat,PtHatWeight);
-     
-     //if(pthat > 460) continue; //no crosssection above 460 on wiki     
+    histPtHatBins->Fill(pthat);
+    histWPtHatBins->Fill(pthat,PtHatWeight);
 
-     //puting HLT same as on data
-     if(TriggerApplied == 1 && HLT_HIL3Mu5_AK4PFJet30_v1==0)continue;
+    //================ Fill Event Level Histograms =========================//
+    Double_t EventCentrality = hiBin/2.0;
 
-     if(jentry%100000==0){
+    histCentrality->Fill(EventCentrality);
+    histEvtVtxX->Fill(vx);
+    histEvtVtxY->Fill(vy);
+    histEvtVtxZ->Fill(vz);
+
+    
+    //This is only true for 2015 MC
+    //if(pthat > 460) continue; //no crosssection above 460 on wiki     
+
+    //puting HLT same as on data
+    if(TriggerApplied == 1 && HLT_HIL3Mu5_AK4PFJet30_v1==0)continue;
+
+    if(jentry%100000==0){
        
-       //((TotalEntries - i)/TotalEntries)*100
-       
-       //cout<<" Event "<<jentry<<" % remaining "<<((Temp_Entries-jentry)/Temp_Entries)*100.0<<endl;
-       cout<<endl;
-       
-       cout<< " Total number of Tracks    : "<<trkPt->size()<<endl;
-       cout<< " Total number of PF Jets   : "<<pf_jtpt->size()<<endl;
-       cout<< " Total number of ref parton   : "<<pf_refparton_flavor->size()<<endl;
-       
-       cout<< " Total number of gen Jets   : "<<genpt->size()<<endl;
-       cout<< " Total number of ref pt     :   "<<pf_refpt->size()<<endl;
-       
-       cout<<endl;
-       
-       cout<< " Total number of Calo Jets : "<< calo_jtpt->size()<<endl;
-       cout<< " Total number of Muons     : "<<mu_pt->size()<<endl;
-       cout<< " Total number of Gen Particles     : "<<pt->size()<<endl;
-       
-       cout<<endl<<endl;
-       
-     }
-
-
-
-     
-     //================== Some Global Cuts =============================//
-     const Int_t TriggerApplied = 0;
-
-     const Double_t GenJetPtMinCut = 60.0; const Double_t JetPtMinCut = 60.0;
-     const Double_t GenJetEtaMinCut = 2.0; const Double_t JetEtaMinCut = 2.0;
-     const Double_t GenMuonPtMin = 5.0; const Double_t MuonPtMin = 5.0;
-
-
-
+      //((TotalEntries - i)/TotalEntries)*100
+      
+      //cout<<" Event "<<jentry<<" % remaining "<<((Temp_Entries-jentry)/Temp_Entries)*100.0<<endl;
+      cout<<endl;
+      
+      cout<< " Total number of Tracks    : "<<trkPt->size()<<endl;
+      cout<< " Total number of PF Jets   : "<<pf_jtpt->size()<<endl;
+      cout<< " Total number of ref parton   : "<<pf_refparton_flavor->size()<<endl;
+      
+      cout<< " Total number of gen Jets   : "<<genpt->size()<<endl;
+      cout<< " Total number of ref pt     :   "<<pf_refpt->size()<<endl;
+      
+      cout<<endl;
+      
+      cout<< " Total number of Calo Jets : "<< calo_jtpt->size()<<endl;
+      cout<< " Total number of Muons     : "<<mu_pt->size()<<endl;
+      cout<< " Total number of Gen Particles     : "<<pt->size()<<endl;
+      
+      cout<<endl<<endl;
+      
+    }
+    
      
      //======================== Filling all Gen Muons ================================//
      //======================== Make vector of Gen Muons ======================//
@@ -1187,9 +1252,12 @@ void JetAnalyzer::Loop()
        if((abs(pdg->at(i))==13)){
 
 	 Double_t GenMuonPt = pt->at(i);
-	 if(GenMuonPt<GenMuonPtMin)continue;
-	 
 	 Double_t GenMuonEta = eta->at(i);
+
+	 if(GenMuonPt < GenMuonPtMin || TMath::Abs(GenMuonEta) > GenMuonEtaCut) continue;
+
+	 
+
 	 Double_t GenMuonPhi = phi->at(i); 
 	 TLorentzVector GenMuon;
 	 GenMuon.SetPtEtaPhiM(GenMuonPt,GenMuonEta, GenMuonPhi, MuonMass); 
@@ -1407,9 +1475,12 @@ void JetAnalyzer::Loop()
       for(unsigned long i=0; i<mu_pt->size();i++){
 		
 	Double_t MuonPt = mu_pt->at(i);
-	if(MuonPt<MuonPtMin)continue;
-	
 	Double_t MuonEta = mu_eta->at(i);
+ 
+	if(MuonPt < MuonPtMin || TMath::Abs(MuonEta) > MuonEtaCut)continue;
+
+	
+	
 	Double_t MuonPhi = mu_phi->at(i); 
 	
 	Int_t Mu_isGlobal = mu_isGlobal->at(i);
@@ -1430,8 +1501,11 @@ void JetAnalyzer::Loop()
 	//new quality cuts added for histos	
 	float Mu_innerD0Err =  mu_innerD0Err->at(i);
 	float Mu_innerDzErr =  mu_innerDzErr->at(i);
+
 	float Mu_innerD0Norm =  Mu_innerD0/Mu_innerD0Err;
 	float Mu_innerDzNorm =  Mu_innerDz/Mu_innerDzErr;
+
+	
 	Int_t Mu_trkQuality = mu_trkQuality->at(i);
 	
 	//Gen Muon matching
@@ -1480,49 +1554,69 @@ void JetAnalyzer::Loop()
 	Int_t BasicCuts =0;
 	if(Mu_isGlobal==1 && Mu_isTracker==1){BasicCuts=1;}
 	//
-	if(BasicCuts==1 && MCMatch==1){
-	  histMuonIsGlobal->Fill(Mu_isGlobal,EventWeight);
-	  histMuonIsTracker->Fill(Mu_isTracker,EventWeight);
-	  histMuonIsPF->Fill(Mu_isPF,EventWeight);
-	  histMuonIsSTA->Fill(Mu_isSTA,EventWeight);
-	  histMuonD0->Fill(Mu_D0,EventWeight);
-	  histMuonDz->Fill(Mu_Dz,EventWeight);
-	  histMuonChi2NDF->Fill(Mu_chi2ndf,EventWeight);
-	  histMuonInnerD0->Fill(Mu_innerD0,EventWeight);
-	  histMuonInnerD0Err->Fill(Mu_innerD0Err,EventWeight);
-	  histMuonInnerDz->Fill(Mu_innerDz,EventWeight);	
-	  histMuonInnerDzErr->Fill(Mu_innerDzErr,EventWeight);
-	  histMuonInnerD0Norm->Fill(Mu_innerD0Norm,EventWeight);
-	  histMuonInnerDzNorm->Fill(Mu_innerDzNorm,EventWeight);
-	  histMuonTrkLayers->Fill(Mu_trkLayers,EventWeight);
-	  histMuonPixelLayers->Fill(Mu_pixelLayers,EventWeight);
-	  histMuonPixelHits->Fill(Mu_pixelHits,EventWeight);
-	  histMuonMuHits->Fill(Mu_muonHits,EventWeight);
-	  histMuonTrkQuality->Fill(Mu_trkQuality,EventWeight);
-	  histMuonMuStations->Fill(Mu_stations,EventWeight);
-	}
-	
-	if(BasicCuts==1 && MCMatch==0){
 
-	  histNGMuonIsGlobal->Fill(Mu_isGlobal,EventWeight);
-          histNGMuonIsTracker->Fill(Mu_isTracker,EventWeight);
-          histNGMuonIsPF->Fill(Mu_isPF,EventWeight);
-          histNGMuonIsSTA->Fill(Mu_isSTA,EventWeight);
-          histNGMuonD0->Fill(Mu_D0,EventWeight);
-          histNGMuonDz->Fill(Mu_Dz,EventWeight);
-          histNGMuonChi2NDF->Fill(Mu_chi2ndf,EventWeight);
-          histNGMuonInnerD0->Fill(Mu_innerD0,EventWeight);
-          histNGMuonInnerD0Err->Fill(Mu_innerD0Err,EventWeight);
-          histNGMuonInnerDz->Fill(Mu_innerDz,EventWeight);
-          histNGMuonInnerDzErr->Fill(Mu_innerDzErr,EventWeight);
-          histNGMuonInnerD0Norm->Fill(Mu_innerD0Norm,EventWeight);
-          histNGMuonInnerDzNorm->Fill(Mu_innerDzNorm,EventWeight);
-          histNGMuonTrkLayers->Fill(Mu_trkLayers,EventWeight);
-          histNGMuonPixelLayers->Fill(Mu_pixelLayers,EventWeight);
-	  histNGMuonPixelHits->Fill(Mu_pixelHits,EventWeight);
-          histNGMuonMuHits->Fill(Mu_muonHits,EventWeight);
-          histNGMuonTrkQuality->Fill(Mu_trkQuality,EventWeight);
-          histNGMuonMuStations->Fill(Mu_stations,EventWeight);
+
+
+	//Int_t TightMuonIDCuts_OtherThanStudied(Int_t isGlobal, Int_t isTracker, float muChi2NDF, float muInnerD0, float muInnerDz, Int_t muMuonHits, Int_t muStations,
+	//			       Int_t muTrkLayers, Int_t muPixelHits, Int_t CutNumberStudied)
+
+
+
+	
+	if(MCMatch==1){
+	  //cuts used in the analysis
+	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,1)==1){histMuonIsGlobal->Fill(Mu_isGlobal,EventWeight);}
+	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,2)==1){histMuonIsTracker->Fill(Mu_isTracker,EventWeight);}
+	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,3)==1){histMuonChi2NDF->Fill(Mu_chi2ndf,EventWeight);}
+	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,4)==1){histMuonInnerD0->Fill(Mu_innerD0,EventWeight);}
+	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,5)==1){histMuonInnerDz->Fill(Mu_innerDz,EventWeight);}
+	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,6)==1){histMuonMuHits->Fill(Mu_muonHits,EventWeight);}
+	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,7)==1){histMuonMuStations->Fill(Mu_stations,EventWeight);}
+	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,8)==1){histMuonTrkLayers->Fill(Mu_trkLayers,EventWeight);}
+	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,9)==1){histMuonPixelHits->Fill(Mu_pixelHits,EventWeight);}
+
+	  //cuts not used in the analysis studied after applying all other cuts
+	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,0)==1){
+	    histMuonIsPF->Fill(Mu_isPF,EventWeight);
+	    histMuonIsSTA->Fill(Mu_isSTA,EventWeight);
+	    histMuonD0->Fill(Mu_D0,EventWeight);
+	    histMuonDz->Fill(Mu_Dz,EventWeight);
+	    histMuonInnerD0Err->Fill(Mu_innerD0Err,EventWeight);
+	    histMuonInnerDzErr->Fill(Mu_innerDzErr,EventWeight);
+	    histMuonInnerD0Norm->Fill(Mu_innerD0Norm,EventWeight);
+	    histMuonInnerDzNorm->Fill(Mu_innerDzNorm,EventWeight);
+	    histMuonPixelLayers->Fill(Mu_pixelLayers,EventWeight);
+	    histMuonTrkQuality->Fill(Mu_trkQuality,EventWeight);
+	  }
+	}//if MCMatch ==1
+	
+
+
+	if(MCMatch==0){
+	  //cuts used in the analysis
+	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,1)==1){histNGMuonIsGlobal->Fill(Mu_isGlobal,EventWeight);}
+	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,2)==1){histNGMuonIsTracker->Fill(Mu_isTracker,EventWeight);}
+	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,3)==1){histNGMuonChi2NDF->Fill(Mu_chi2ndf,EventWeight);}
+	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,4)==1){histNGMuonInnerD0->Fill(Mu_innerD0,EventWeight);}
+	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,5)==1){histNGMuonInnerDz->Fill(Mu_innerDz,EventWeight);}
+	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,6)==1){histNGMuonMuHits->Fill(Mu_muonHits,EventWeight);}
+	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,7)==1){histNGMuonMuStations->Fill(Mu_stations,EventWeight);}
+	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,8)==1){histNGMuonTrkLayers->Fill(Mu_trkLayers,EventWeight);}
+	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,9)==1){histNGMuonPixelHits->Fill(Mu_pixelHits,EventWeight);}
+	  //cuts not used in the analysis studied after applying all other cuts
+	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,0)==1){
+	    histNGMuonIsPF->Fill(Mu_isPF,EventWeight);
+	    histNGMuonIsSTA->Fill(Mu_isSTA,EventWeight);
+	    histNGMuonD0->Fill(Mu_D0,EventWeight);
+	    histNGMuonDz->Fill(Mu_Dz,EventWeight);
+	    histNGMuonInnerD0Err->Fill(Mu_innerD0Err,EventWeight);
+	    histNGMuonInnerDzErr->Fill(Mu_innerDzErr,EventWeight);
+	    histNGMuonInnerD0Norm->Fill(Mu_innerD0Norm,EventWeight);
+	    histNGMuonInnerDzNorm->Fill(Mu_innerDzNorm,EventWeight);
+	    histNGMuonPixelLayers->Fill(Mu_pixelLayers,EventWeight);
+	    histNGMuonTrkQuality->Fill(Mu_trkQuality,EventWeight);
+	  }
+	  
 	}
 
 
@@ -3172,6 +3266,79 @@ Int_t TightMuonIDCuts(Int_t isGlobal, Int_t isTracker, float muEta, float muChi2
       && muMuonHits > 0 && muStations > 1 && muTrkLayers > 5 && muPixelHits > 0){SelectMuon =1;}
   return SelectMuon;
 }
+
+
+
+
+Int_t TightMuonIDCuts_OtherThanStudied(Int_t isGlobal, Int_t isTracker, float muChi2NDF, float muInnerD0, float muInnerDz, Int_t muMuonHits, Int_t muStations,
+				       Int_t muTrkLayers, Int_t muPixelHits, Int_t CutNumberStudied){
+  Int_t SelectMuon =0;
+
+
+  //CutNumberStudied = 0 : All Cut Applied
+  if( (CutNumberStudied ==0) && (isGlobal==1 && isTracker==1 && (muChi2NDF != -99 && muChi2NDF < 10) && TMath::Abs(muInnerD0) < 0.2 && TMath::Abs(muInnerDz) < 0.5
+			  && muMuonHits > 0 && muStations > 1 && muTrkLayers > 5 && muPixelHits > 0)){SelectMuon =1;}
+
+  //CutNumberStudied = 1 : All Cut Applied except isGlobal
+  if( (CutNumberStudied ==1) && ( isTracker==1 && (muChi2NDF != -99 && muChi2NDF < 10) && TMath::Abs(muInnerD0) < 0.2 && TMath::Abs(muInnerDz) < 0.5 && muMuonHits > 0
+			   && muStations > 1 && muTrkLayers > 5 && muPixelHits > 0)){SelectMuon =1;}
+
+
+  //CutNumberStudied = 2 : All Cut Applied except isTracker
+  if( (CutNumberStudied ==2) && ( isGlobal==1 && (muChi2NDF != -99 && muChi2NDF < 10) && TMath::Abs(muInnerD0) < 0.2 && TMath::Abs(muInnerDz) < 0.5 && muMuonHits > 0
+			   && muStations > 1 && muTrkLayers > 5 && muPixelHits > 0)){SelectMuon =1;}
+ 
+  //CutNumberStudied = 3 : All Cut Applied except muChi2NDF
+  if( (CutNumberStudied ==3) && (isGlobal==1 && isTracker==1  && TMath::Abs(muInnerD0) < 0.2 && TMath::Abs(muInnerDz) < 0.5
+			  && muMuonHits > 0 && muStations > 1 && muTrkLayers > 5 && muPixelHits > 0)){SelectMuon =1;}
+
+   //CutNumberStudied = 4 : All Cut Applied except muInnerD0
+  if( (CutNumberStudied ==4) && (isGlobal==1 && isTracker==1 && (muChi2NDF != -99 && muChi2NDF < 10) && TMath::Abs(muInnerDz) < 0.5
+			  && muMuonHits > 0 && muStations > 1 && muTrkLayers > 5 && muPixelHits > 0)){SelectMuon =1;}
+  
+  //CutNumberStudied = 5 : All Cut Applied except muInnerDz
+  if( (CutNumberStudied ==5) && (isGlobal==1 && isTracker==1 && (muChi2NDF != -99 && muChi2NDF < 10) && TMath::Abs(muInnerD0) < 0.2 &&
+				 muMuonHits > 0 && muStations > 1 && muTrkLayers > 5 && muPixelHits > 0)){SelectMuon =1;}
+
+  //CutNumberStudied = 6 : All Cut Applied except muMuonHits
+  if( (CutNumberStudied ==6) && (isGlobal==1 && isTracker==1 && (muChi2NDF != -99 && muChi2NDF < 10) && TMath::Abs(muInnerD0) < 0.2 && TMath::Abs(muInnerDz) < 0.5
+			  && muStations > 1 && muTrkLayers > 5 && muPixelHits > 0)){SelectMuon =1;}
+
+
+  //CutNumberStudied = 7 : All Cut Applied except muStations
+  if( (CutNumberStudied ==7) && (isGlobal==1 && isTracker==1 && (muChi2NDF != -99 && muChi2NDF < 10) && TMath::Abs(muInnerD0) < 0.2 && TMath::Abs(muInnerDz) < 0.5
+			  && muMuonHits > 0  && muTrkLayers > 5 && muPixelHits > 0)){SelectMuon =1;}
+
+  //CutNumberStudied = 8 : All Cut Applied except muTrkLayers
+  if( (CutNumberStudied ==8) && (isGlobal==1 && isTracker==1 && (muChi2NDF != -99 && muChi2NDF < 10) && TMath::Abs(muInnerD0) < 0.2 && TMath::Abs(muInnerDz) < 0.5
+			  && muMuonHits > 0 && muStations > 1 && muPixelHits > 0)){SelectMuon =1;}
+  
+  //CutNumberStudied = 9 : All Cut Applied except muPixelHits
+  if( (CutNumberStudied ==9) && (isGlobal==1 && isTracker==1 && (muChi2NDF != -99 && muChi2NDF < 10) && TMath::Abs(muInnerD0) < 0.2 && TMath::Abs(muInnerDz) < 0.5
+			  && muMuonHits > 0 && muStations > 1 && muTrkLayers > 5 )){SelectMuon =1;}
+
+  return SelectMuon;
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
