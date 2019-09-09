@@ -21,3 +21,7 @@ CMS
 #Ignore latex tables
 OutTexFile
 OutTxtFile
+
+#Ignore extra files
+MC/JetAnalyzer/FileList.txt
+MC/JetAnalyzer/remote_JetAnalyzer.C
