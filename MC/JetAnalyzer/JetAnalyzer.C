@@ -190,12 +190,8 @@ void JetAnalyzer::Loop()
   //MC Matching applied
   //TFile *OutFile = new TFile("DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_MCMatched_01Aug2019.root","Recreate");
 
-  TFile *OutFile = new TFile("JetAnalyzerOutPut_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_TriggerApplied_28Aug2019.root","Recreate");
-  
-
-
-
-
+  TFile *OutFile = new TFile("JetAnalyzerOutPut_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeVEta24_TighestMuon_RefPartonFlvForB_TriggerApplied.root","Recreate");
+ 
   //============== Basic Event Level Histo ============================//
   // Centrality
   const Double_t minCentrality = -0.75;   // Minimum centrality bin, is negative since hiBin is -1 for pp
@@ -216,7 +212,7 @@ void JetAnalyzer::Loop()
   histEvtVtxY->GetXaxis()->SetTitle("EvtVtxY");
   histEvtVtxY->GetYaxis()->SetTitle("Entries");
 
-  TH1D *histEvtVtxZ= new TH1D("histEvtVtxZ","histEvtVtxZ",200,-25.0,25.0);
+  TH1D *histEvtVtxZ= new TH1D("histEvtVtxZ","histEvtVtxZ",300,-30.0,30.0);
   histEvtVtxZ->GetXaxis()->SetTitle("EvtVtxZ");
   histEvtVtxZ->GetYaxis()->SetTitle("Entries");
 
