@@ -43,11 +43,16 @@ public :
   Int_t           HBHENoiseFilterResultRun2Tight;
   Int_t           HBHEIsoNoiseFilterResult;
   Int_t           pPAprimaryVertexFilter;
+
   vector<float>   *trkPt;
   vector<float>   *trkEta;
   vector<float>   *trkPhi;
   vector<int>     *trkAlgo;
   vector<bool>    *highPurity;
+
+  Float_t         hiBin;
+  Float_t         vx;
+  Float_t         vy;
   Float_t         vz;
 
   vector<float>   *pf_jteta;
@@ -215,7 +220,12 @@ public :
   TBranch        *b_trkPhi;   //!
   TBranch        *b_trkAlgo;   //!
   TBranch        *b_highPurity;   //!
+
+  TBranch        *b_hiBin;   //!
+  TBranch        *b_vx;   //!
+  TBranch        *b_vy;   //!
   TBranch        *b_vz;   //!
+  
   TBranch        *b_pf_jteta;   //!
   TBranch        *b_pf_jtphi;   //!
   TBranch        *b_pf_jtpt;   //!
@@ -542,7 +552,13 @@ void JetAnalyzer::Init(TTree *tree)
    fChain->SetBranchAddress("trkPhi", &trkPhi, &b_trkPhi);
    if(!is_PP2017MC)fChain->SetBranchAddress("trkAlgo", &trkAlgo, &b_trkAlgo);
    if(!is_PP2017MC)fChain->SetBranchAddress("highPurity", &highPurity, &b_highPurity);
+
+   fChain->SetBranchAddress("hiBin", &hiBin, &b_hiBin);
+   fChain->SetBranchAddress("vx", &vx, &b_vx);
+   fChain->SetBranchAddress("vy", &vy, &b_vy);
    fChain->SetBranchAddress("vz", &vz, &b_vz);
+
+
    fChain->SetBranchAddress("pf_jteta", &pf_jteta, &b_pf_jteta);
    fChain->SetBranchAddress("pf_jtphi", &pf_jtphi, &b_pf_jtphi);
    fChain->SetBranchAddress("pf_jtpt", &pf_jtpt, &b_pf_jtpt);
@@ -663,12 +679,6 @@ void JetAnalyzer::Init(TTree *tree)
    fChain->SetBranchAddress("mu_muonHits", &mu_muonHits, &b_mu_muonHits);
    fChain->SetBranchAddress("mu_trkQuality", &mu_trkQuality, &b_mu_trkQuality);
    fChain->SetBranchAddress("mu_stations", &mu_stations, &b_mu_stations);
-
-
-
-
-
-
 
    Notify();
 }
