@@ -198,6 +198,7 @@ void JetAnalyzer::Loop()
   const Double_t maxCentrality = 100.25;  // Maximum centrality bin
   const Int_t nCentralityBins = 202;      // Number of centrality bins
 
+
   TH1D *histCentrality= new TH1D("histCentrality","histCentrality", nCentralityBins,minCentrality,maxCentrality);
   histCentrality->GetXaxis()->SetTitle("Centrality");
   histCentrality->GetYaxis()->SetTitle("Entries");
@@ -217,6 +218,29 @@ void JetAnalyzer::Loop()
   histEvtVtxZ->GetYaxis()->SetTitle("Entries");
 
 
+  //event histograms to be filled without weights
+  TH1D *histCentrality_nw= new TH1D("histCentrality_nw","histCentrality_nw", nCentralityBins,minCentrality,maxCentrality);
+  histCentrality_nw->GetXaxis()->SetTitle("Centrality");
+  histCentrality_nw->GetYaxis()->SetTitle("Entries");
+  
+  
+  TH1D *histEvtVtxX_nw= new TH1D("histEvtVtxX_nw","histEvtVtxX_nw",200,-1.0,1.0);
+  histEvtVtxX_nw->GetXaxis()->SetTitle("EvtVtxX");
+  histEvtVtxX_nw->GetYaxis()->SetTitle("Entries");
+
+  
+  TH1D *histEvtVtxY_nw= new TH1D("histEvtVtxY_nw","histEvtVtxY_nw",200,-1.0,1.0);
+  histEvtVtxY_nw->GetXaxis()->SetTitle("EvtVtxY");
+  histEvtVtxY_nw->GetYaxis()->SetTitle("Entries");
+
+  TH1D *histEvtVtxZ_nw= new TH1D("histEvtVtxZ_nw","histEvtVtxZ_nw",300,-30.0,30.0);
+  histEvtVtxZ_nw->GetXaxis()->SetTitle("EvtVtxZ");
+  histEvtVtxZ_nw->GetYaxis()->SetTitle("Entries");
+
+
+
+
+  
   
   TH1D *histNumberOfJets = new TH1D("histNumberOfJets","histNumberOfJets",30,0.5,30.5);
   histNumberOfJets->GetXaxis()->SetTitle("Jet Multiplicity");
@@ -1197,11 +1221,22 @@ void JetAnalyzer::Loop()
     //================ Fill Event Level Histograms =========================//
     Double_t EventCentrality = hiBin/2.0;
 
-    histCentrality->Fill(EventCentrality);
-    histEvtVtxX->Fill(vx);
-    histEvtVtxY->Fill(vy);
-    histEvtVtxZ->Fill(vz);
+    histCentrality->Fill(EventCentrality,EventWeight);
+    histEvtVtxX->Fill(vx,EventWeight);
+    histEvtVtxY->Fill(vy,EventWeight);
+    histEvtVtxZ->Fill(vz,EventWeight);
 
+    histCentrality_nw->Fill(EventCentrality);
+    histEvtVtxX_nw->Fill(vx);
+    histEvtVtxY_nw->Fill(vy);
+    histEvtVtxZ_nw->Fill(vz);
+
+    
+
+
+
+
+    
     
     //This is only true for 2015 MC
     //if(pthat > 460) continue; //no crosssection above 460 on wiki     
@@ -2939,6 +2974,16 @@ void JetAnalyzer::Loop()
   // Write the histograms
   histPtHatBins->Write();
   histWPtHatBins->Write();
+
+  histCentrality->Write();
+  histEvtVtxX->Write();
+  histEvtVtxY->Write();
+  histEvtVtxZ->Write();
+  
+  histCentrality_nw->Write();
+  histEvtVtxX_nw->Write();
+  histEvtVtxY_nw->Write();
+  histEvtVtxZ_nw->Write();
 
   histNumberOfGenJets->Write();
   histGenJetPt->Write();

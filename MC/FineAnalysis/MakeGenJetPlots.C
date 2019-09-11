@@ -654,7 +654,7 @@ void MakeGenJetPlots(TFile *file_in, Double_t GenJetPtMin, Double_t GenMuPtCut)
   //====================== and effect of differnt muon pT cut on them ==================================//
   //====================================================================================================//
   const int NMuonPtCut =4;
-  const Double_t MuonPtCut[NMuonPtCut]={3.0,12.5,16.0,20.0};
+  const Double_t MuonPtCut[NMuonPtCut]={5.0,12.5,16.0,20.0};
   
   cout<<endl<<endl<<endl;
   cout<<" =============================================================================== "<<endl;

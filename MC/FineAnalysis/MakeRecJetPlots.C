@@ -932,6 +932,15 @@ void MakeRecJetPlots(TFile *file_in, TFile *file_out, Double_t RecJetPtMin)
      
   
   //================ Drawing  Graphs for different muon pT cuts ===============//
+
+  
+
+  TH1D *hist_TaggingEff_Ghost = RecJetMethod->Get_Ghost_Hist("hist_TaggingEff_Ghost","hist_TaggingEff_Ghost",0.001,1.2,"PF Jet p_{T} (GeV/c)","Tagging Efficiency");
+
+  TH1D *hist_JetFraction_Ghost = RecJetMethod->Get_Ghost_Hist("hist_JetFraction_Ghost","hist_JetFraction_Ghost",0.01,1.2,"PF Jet p_{T} (GeV/c)","Jet Fractions");
+
+
+
   
   for(int i =0 ;i<NMuonPtCut; i++)
     {
@@ -962,10 +971,10 @@ void MakeRecJetPlots(TFile *file_in, TFile *file_out, Double_t RecJetPtMin)
       gPad->SetTopMargin(0.1);
       gPad->SetBottomMargin(0.2);
       
-      hist_TaggingEff_ForB[i]->GetYaxis()->SetRangeUser(0.001,1.2);
-      hist_TaggingEff_ForB[i]->GetYaxis()->SetTitle("Tagging Efficiency");
-      
-      hist_TaggingEff_ForB[i]->Draw();
+      //hist_TaggingEff_ForB[i]->GetYaxis()->SetRangeUser(0.001,1.2);
+      //hist_TaggingEff_ForB[i]->GetYaxis()->SetTitle("Tagging Efficiency");
+      hist_TaggingEff_Ghost->Draw();
+      hist_TaggingEff_ForB[i]->Draw("same");
       hist_TaggingEff_ForU[i]->Draw("same");
       hist_TaggingEff_ForD[i]->Draw("same");
       hist_TaggingEff_ForS[i]->Draw("same");
@@ -985,15 +994,19 @@ void MakeRecJetPlots(TFile *file_in, TFile *file_out, Double_t RecJetPtMin)
       gPad->SetLogy(1);
       gPad->SetTopMargin(0.1);
       gPad->SetBottomMargin(0.2);
-      hist_Purity_ForB[i]->GetYaxis()->SetRangeUser(0.01,1.2);
-      hist_Purity_ForB[i]->GetYaxis()->SetTitle(" Jet Fractions");
-      hist_Purity_ForB[i]->GetXaxis()->SetLabelSize(0.06);
+
+
+
+      //hist_Purity_ForB[i]->GetYaxis()->SetRangeUser(0.01,1.2);
+      //hist_Purity_ForB[i]->GetYaxis()->SetTitle("Jet Fractions");
+      //hist_Purity_ForB[i]->GetXaxis()->SetLabelSize(0.06);
       
-      hist_Purity_ForB[i]->GetXaxis()->SetTitle(" Jet p_{T} (GeV/c)");
-      hist_Purity_ForB[i]->GetXaxis()->SetTitleOffset(1.4);
-      hist_Purity_ForB[i]->GetXaxis()->SetTitleSize(0.06);
-      
-      hist_Purity_ForB[i]->Draw();
+      //hist_Purity_ForB[i]->GetXaxis()->SetTitle("Jet p_{T} (GeV/c)");
+      //hist_Purity_ForB[i]->GetXaxis()->SetTitleOffset(1.4);
+      //hist_Purity_ForB[i]->GetXaxis()->SetTitleSize(0.06);
+
+      hist_JetFraction_Ghost->Draw();
+      hist_Purity_ForB[i]->Draw("same");
       
       hist_Purity_ForU[i]->Draw("same");
       hist_Purity_ForD[i]->Draw("same");
@@ -1018,13 +1031,15 @@ void MakeRecJetPlots(TFile *file_in, TFile *file_out, Double_t RecJetPtMin)
       CanvasBPurityUnMuonCut->cd(i+1);
       gPad->SetTopMargin(0.1);
       gPad->SetBottomMargin(0.2);
-      
-      hist_Purity_ForUn[i]->GetYaxis()->SetRangeUser(0.0,0.2);
-      hist_Purity_ForUn[i]->GetYaxis()->SetTitle(" Fraction ");
-      hist_Purity_ForUn[i]->GetXaxis()->SetTitle(" Jet p_{T} (GeV/c)");
-      hist_Purity_ForUn[i]->GetXaxis()->SetTitleOffset(1.4);
-      hist_Purity_ForUn[i]->GetXaxis()->SetTitleSize(0.06);
-      hist_Purity_ForUn[i]->Draw();
+      hist_JetFraction_Ghost->Draw();
+
+      //hist_Purity_ForUn[i]->GetYaxis()->SetRangeUser(0.0,0.2);
+      //hist_Purity_ForUn[i]->GetYaxis()->SetTitle(" Fraction ");
+      //hist_Purity_ForUn[i]->GetXaxis()->SetTitle(" Jet p_{T} (GeV/c)");
+      //hist_Purity_ForUn[i]->GetXaxis()->SetTitleOffset(1.4);
+      //hist_Purity_ForUn[i]->GetXaxis()->SetTitleSize(0.06);
+
+      hist_Purity_ForUn[i]->Draw("same");
       hist_Purity_ForZe[i]->Draw("same");
       sprintf(LatexChar,"#mu p_{T} > %.1f GeV/c",MuonPtCut[i]);
       tb->DrawLatex(0.64,0.84,LatexChar);

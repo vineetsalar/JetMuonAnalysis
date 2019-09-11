@@ -8,6 +8,7 @@
 #include "TMath.h"
 #include <iostream>
 #include "THnSparse.h"
+#include "TString.h"
 
 class MyMethod{
   
@@ -68,7 +69,8 @@ class MyMethod{
   
   void MakeHistogramNameToHistogramTitle(TH1 *inHist);
   void GlamorizeHistogram(TH1 *InHist, Int_t LineColor, Int_t MarkerColor, Int_t MarkerStyle, Float_t MarkerSize);
-
+  void SetHistogramTitles(TH1 *InHist, const char *xTitle, const char *yTitle);
+  void SetHistogramAxisRange(TH1 *InHist, Double_t xmin, Double_t xmax, Double_t ymin, Double_t ymax);
   
 };
 

@@ -23,7 +23,7 @@ class MyMethod{
   const Int_t MarkerStyleArray[NFlavour+1]={0,46,30,38,33,21,24};
   const Float_t MarkerSizeArray[NFlavour+1]={0,1.5,1.5,1.5,1.8,1.4,1.4};
 
-  
+  /*
   //===== Bins for Asymmatric binning of Gen Jet pT
   static const int NBins_GenJetPt_VarSize=12;
   //bin boundry matching with the original histogram bin boundry
@@ -41,10 +41,28 @@ class MyMethod{
   static const int NBins_JetPt_VarSize=12;
   //bin boundry matching with the original histogram bin boundry
   const Double_t JetPtBinEdges[NBins_JetPt_VarSize]={31.5,40.5,63.0,81.0,103.5,130.5,162.0,202.5,252.0,301.5,351.0,445.5};
+  */
 
 
 
+  /**************************************************************************/
+  //changing the binning to match with data
+  /*************************************************************************/
+  //===== Bins for Asymmatric binning of Gen Jet pT
+  static const int NBins_GenJetPt_VarSize=16;
+  //bin boundry matching with the original histogram bin boundry
+  const Double_t GenJetPtBinEdges[NBins_GenJetPt_VarSize]={60.0, 65.0, 70.0, 75.0, 80.0,85.0,90.0,100.0,120.0,140.0,160.0,200.0,240.0,320.0,400.0,499.0};
 
+
+  //===== Bins for Asymmatric binning of muon pT
+  static const int NBins_GenMuonPt_VarSize=13;
+  //bin boundry matching with the original histogram bin boundry
+  const Double_t GenMuonPtBinEdges[NBins_GenMuonPt_VarSize]={1.0, 3.0, 5.0, 7.0, 9.0, 11.0, 14.0, 18.0, 22.0, 30.0, 40.0, 60.0, 100.0};
+  
+  
+  //===== Bins for Asymmatric binning of Jet pT
+  static const int NBins_JetPt_VarSize=16;
+  Double_t JetPtBinEdges[NBins_JetPt_VarSize]={60.0, 65.0, 70.0, 75.0, 80.0,85.0,90.0,100.0,120.0,140.0,160.0,200.0,240.0,320.0,400.0,499.0};
   
   
   TH1D *RatioHistogram(TH1 *InHistNum, TH1 *InHistDeno, Int_t RebinFac); //make ratio of two histograms

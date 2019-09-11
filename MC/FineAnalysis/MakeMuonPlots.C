@@ -672,7 +672,7 @@ void MakeMuonIDVarStudy(TFile *file_in)
   //===================================================================================//
 
 
-  const int NIDCuts = 15;
+  const int NIDCuts = 17;
   TH1D *AMuIDCuts[NIDCuts];
   TH1D *ANGMuIDCuts[NIDCuts];
   
@@ -680,21 +680,21 @@ void MakeMuonIDVarStudy(TFile *file_in)
   const char NameMuIDCuts[NIDCuts][100]={"histMuonD0","histMuonDz","histMuonChi2NDF","histMuonInnerD0","histMuonInnerD0Err",
 					 "histMuonInnerDz","histMuonInnerDzErr","histMuonInnerD0Norm","histMuonInnerDzNorm",
 					 "histMuonTrkLayers","histMuonPixelLayers","histMuonPixelHits","histMuonMuHits",
-					 "histMuonTrkQuality","histMuonMuStations"};
+					 "histMuonTrkQuality","histMuonMuStations","histMuonIsGlobal","histMuonIsTracker"};
 
 
   //Array of Histogram Names For Unmatched Muons
   const char NameNGMuIDCuts[NIDCuts][100]={"histNGMuonD0","histNGMuonDz","histNGMuonChi2NDF","histNGMuonInnerD0","histNGMuonInnerD0Err",
 					   "histNGMuonInnerDz","histNGMuonInnerDzErr","histNGMuonInnerD0Norm","histNGMuonInnerDzNorm",
 					   "histNGMuonTrkLayers","histNGMuonPixelLayers","histNGMuonPixelHits","histNGMuonMuHits",
-					   "histNGMuonTrkQuality","histNGMuonMuStations"};
+					   "histNGMuonTrkQuality","histNGMuonMuStations","histNGMuonIsGlobal","histNGMuonIsTracker"};
 
 
   //Array of Names For saving the plots
   const char PlotNamesMuIDCuts[NIDCuts][100]={"MuonD0","MuonDz","MuonChi2NDF","MuonInnerD0","MuonInnerD0Err",
 					   "MuonInnerDz","MuonInnerDzErr","MuonInnerD0Norm","MuonInnerDzNorm",
 					   "MuonTrkLayers","MuonPixelLayers","MuonPixelHits","MuonMuHits",
-					   "MuonTrkQuality","MuonMuStations"};
+					      "MuonTrkQuality","MuonMuStations","isGlobal","isTracker"};
 
 
 
@@ -724,9 +724,13 @@ void MakeMuonIDVarStudy(TFile *file_in)
 
 
   //Muon Chi2ByNDF (cut is Chi2NDF < 10)
-   MuIDCutValueMin[2]=0.0;
-   MuIDCutValueMax[2]=10.0;
+   //MuIDCutValueMin[2]=0.0;
+   //MuIDCutValueMax[2]=10.0;
 
+   //PROPOSED Muon Chi2ByNDF (cut is Chi2NDF < 2)
+   MuIDCutValueMin[2]=0.0;
+   MuIDCutValueMax[2]=2.0;
+   
   
   //Muon Inner D0 (cut is abs(d0)<0.2)
    MuIDCutValueMin[3]=-0.2;
@@ -758,7 +762,11 @@ void MakeMuonIDVarStudy(TFile *file_in)
    MuIDCutValueMax[8]=3.0;
   
   //Muon Track Layers (cut is > 5)
-   MuIDCutValueMin[9]=6;
+   //MuIDCutValueMin[9]=6;
+   //MuIDCutValueMax[9]=18;
+
+   //PROPOSED Muon Track Layers (cut is > 8)
+   MuIDCutValueMin[9]=9;
    MuIDCutValueMax[9]=18;
 
   
@@ -770,7 +778,11 @@ void MakeMuonIDVarStudy(TFile *file_in)
   
 
   //Muon Pixel Hits (cut is PixelHits >0)
-   MuIDCutValueMin[11]=1;
+   //MuIDCutValueMin[11]=1;
+   //MuIDCutValueMax[11]=10;
+
+   //PROPOSED Muon Pixel Hits (cut is PixelHits >1)
+   MuIDCutValueMin[11]=2;
    MuIDCutValueMax[11]=10;
 
   
@@ -778,14 +790,37 @@ void MakeMuonIDVarStudy(TFile *file_in)
    MuIDCutValueMin[12]=1;
    MuIDCutValueMax[12]=49;
 
+   
+
   //Muon Trk Quality (We use no cut for this)
    MuIDCutValueMin[13]=-999;
    MuIDCutValueMax[13]=999;
   
   //MuonMuStations (cuts is MuStations >1) 
-   MuIDCutValueMin[14]=2;
+   //MuIDCutValueMin[14]=2;
+   //MuIDCutValueMax[14]=5;
+
+   //PROPOSED MuonMuStations (cuts is MuStations >2) 
+   MuIDCutValueMin[14]=3;
    MuIDCutValueMax[14]=5;
 
+
+   //Muon is Global (cuts isGlobal ==1) 
+   MuIDCutValueMin[15]=1;
+   MuIDCutValueMax[15]=1;
+
+
+   //Muon is Tracker (cuts isTracker ==1) 
+   MuIDCutValueMin[16]=1;
+   MuIDCutValueMax[16]=1;
+
+
+
+
+
+
+
+   
   
   //Define graphs to plot lines on the plots for the cut values
   TGraph *line1_MuIDCut[NIDCuts];
@@ -833,6 +868,7 @@ void MakeMuonIDVarStudy(TFile *file_in)
       line2_MuIDCut[i]->SetPoint(1,MuIDCutValueMax[i],TMath::Max((AMuIDCuts[i]->GetMaximum()),(ANGMuIDCuts[i]->GetMaximum())));
 
       Double_t Frac_MuID = FractionInsideCut(AMuIDCuts[i],MuIDCutValueMin[i],MuIDCutValueMax[i]);
+
       Double_t Frac_NGMuID = FractionInsideCut(ANGMuIDCuts[i],MuIDCutValueMin[i],MuIDCutValueMax[i]);
 
 
@@ -840,7 +876,29 @@ void MakeMuonIDVarStudy(TFile *file_in)
 
       
       new TCanvas;
-      if(i==3 || i==5)gPad->SetLogy(1);
+      AMuIDCuts[i]->Draw();
+      ANGMuIDCuts[i]->Draw("same");
+      line1_MuIDCut[i]->Draw("lsame");
+      line2_MuIDCut[i]->Draw("lsame");
+      lgd_MuIDVar[i]->Draw("Psame");
+      
+      sprintf(LatexChar,"In Frac. %0.3f",Frac_MuID);
+      
+      if(i==9){tr->DrawLatex(0.18,0.7,LatexChar);}
+      else{tr->DrawLatex(0.70,0.7,LatexChar);}
+
+      sprintf(LatexChar,"In Frac. %0.3f",Frac_NGMuID);
+      if(i==9){tb->DrawLatex(0.18,0.65,LatexChar);}
+      else{tb->DrawLatex(0.70,0.65,LatexChar);}
+      
+      gPad->SaveAs(Form("Plots/MuonPlots/IDPlots/%s.pdf",PlotNamesMuIDCuts[i]));
+      gPad->SaveAs(Form("Plots/MuonPlots/IDPlots/%s.png",PlotNamesMuIDCuts[i]));
+
+
+
+      // save in log
+      new TCanvas;
+      gPad->SetLogy(1);
       AMuIDCuts[i]->Draw();
       ANGMuIDCuts[i]->Draw("same");
       line1_MuIDCut[i]->Draw("lsame");
@@ -856,11 +914,17 @@ void MakeMuonIDVarStudy(TFile *file_in)
       if(i==9){tb->DrawLatex(0.18,0.65,LatexChar);}
       else{tb->DrawLatex(0.70,0.65,LatexChar);}
       
-      
-      
-      gPad->SaveAs(Form("Plots/MuonPlots/IDPlots/%s.pdf",PlotNamesMuIDCuts[i]));
-      gPad->SaveAs(Form("Plots/MuonPlots/IDPlots/%s.png",PlotNamesMuIDCuts[i]));
+      gPad->SaveAs(Form("Plots/MuonPlots/IDPlots/LogPlot_%s.pdf",PlotNamesMuIDCuts[i]));
+      gPad->SaveAs(Form("Plots/MuonPlots/IDPlots/LogPlot_%s.png",PlotNamesMuIDCuts[i]));
 
+
+
+
+
+
+
+
+      
 
       
     }
@@ -879,6 +943,7 @@ Double_t FractionInsideCut(TH1D *InHist, Double_t CutValueMin, Double_t CutValue
   Int_t BinMax = InHist->GetXaxis()->FindBin(CutValueMax);
 
   Double_t Deno = InHist->Integral();
+
   Double_t Num = InHist->Integral(BinMin,BinMax);
   
 

@@ -608,8 +608,6 @@ void DrawEventHistograms(TFile *file_in, TFile *file_Out, TLatex *tb)
   TH1D *hist_EvtVtxX=(TH1D*)file_in->Get("histEvtVtxX");
   TH1D *hist_EvtVtxY=(TH1D*)file_in->Get("histEvtVtxY");
   TH1D *hist_EvtVtxZ=(TH1D*)file_in->Get("histEvtVtxZ");
-
-  
   TH1D *hist_Centrality=(TH1D*)file_in->Get("histCentrality");
 
   //========= Centrality Bin centres =========================//

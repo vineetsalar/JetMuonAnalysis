@@ -53,6 +53,7 @@
 
 
 // These functions are now in seperate files
+#include "MakeEventHistos.C"
 #include "MakeGenJetPlots.C"
 #include "MakeRecJetPlots.C"
 #include "MakeMuonPlots.C"
@@ -72,9 +73,6 @@ const Float_t MarkerSizeArray[NFlavour+1]={0,1.5,1.5,1.5,1.8,1.4,1.4};
 TH1D *RatioHistogram(TH1 *InHistNum, TH1 *InHistDeno, Int_t RebinFac);
 void PrintGraph(TGraph *GraphIn);
 void ScaleHistByItsIntegral(TH1 *InHist);
-
-
-
 
 TH1D *Get_Ghost_Hist(const char *Name, const char *Title, Double_t YMin, Double_t YMax, const char *XTitle, const char *YTitle);
 
@@ -107,9 +105,7 @@ const Double_t GenMuPtCut =  5.0;
 const Double_t RecJetPtMin = 60.0;
 const Double_t RecMuPtCut =  5.0;
 
-
-
-
+/*
 //===== Bins for Asymmatric binning of Gen Jet pT
 const int NBins_GenJetPt_VarSize=12;
 //bin boundry matching with the original histogram bin boundry
@@ -120,7 +116,7 @@ const Double_t GenJetPtBinEdges[NBins_GenJetPt_VarSize]={31.5,40.5,63.0,81.0,103
 const int NBins_GenMuonPt_VarSize=13;
 //bin boundry matching with the original histogram bin boundry
 const Double_t GenMuonPtBinEdges[NBins_GenMuonPt_VarSize]={1.0, 3.0, 5.0, 7.0, 9.0, 11.0, 14.0, 18.0, 22.0, 30.0, 40.0, 60.0, 100.0};
-
+*/
 
 void MakeGenJetPlots(TFile *file_in, Double_t GenJetPtMin,Double_t GenMuPtCut);
 void MakeRecJetPlots(TFile *file_in, TFile *file_out, Double_t RecJetPtMin);
@@ -163,21 +159,19 @@ void MakeJetPlots()
   //TFile *file_in =  new TFile("InRootFiles/DiJet_Pythia6Skim__FullPtHat_MCMatchedMuon_RefPartonFlvForB_03April2019_All.root","R");
   //TFile *file_in =  new TFile("InRootFiles/DiJet_Pythia6Skim__FullPtHat_MCMatchedMuon_ForUnKnownJets_11April2019_All.root","R");
   //TFile *file_in =  new TFile("InRootFiles/DiJet_Pythia6Skim__FullPtHat_MCMatchedMuon_RefPartonFlvForB_ForUnKnownJets_11April2019_All.root","R");
-
   //TFile *file_in =  new TFile("InRootFiles/DiJet_Pythia6Skim__FullPtHat_MCMatchedMuon_RefPartonFlvForB_ForUnKnownJets_24April2019_All.root","R");
 
   //Tightest muon applied
   //TFile *file_in =  new TFile("InRootFiles/DiJet_Pythia6Skim__FullPtHat_DataCuts_MCMatchedMuon_TighestMuon_RefPartonFlvForB_18June2019_All.root","R");
   //TFile *file_in =  new TFile("InRootFiles/DiJet_Pythia6Skim__FullPtHat_Jet80GeV16Mu5GeV_MCMatchedMuon_TighestMuon_RefPartonFlvForB_18June2019_All.root","R");
-
   //TFile *file_in =  new TFile("InRootFiles/DiJet_Pythia6Skim__FullPtHat_Jet80GeV16Mu3GeV_MCMatchedMuon_TighestMuon_RefPartonFlvForB_02July2019_All.root","R");
-  
   //TFile *file_in =  new TFile("InRootFiles/DiJet_Pythia6Skim__FullPtHat_Jet80GeV16Mu3GeV_TighestMuon_RefPartonFlvForB_05July2019_All.root","R");
-
   //TFile *file_in =  new TFile("InRootFiles/DiJet_Pythia6Skim__FullPtHat_Jet60GeV2Mu5GeV_TighestMuon_RefPartonFlvForB_24July2019_All.root","R");
 
-  
+  /*************************
   //PP 2017 MC Starts here:
+  *************************/
+  
   //TFile *file_in =  new TFile("InRootFiles/DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_31July2019_All.root","R");
   //PP 2017 MC (MC Matched muons are used)
   //TFile *file_in =  new TFile("InRootFiles/DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_MCMatched_01Aug2019_All.root","R");  
@@ -188,7 +182,7 @@ void MakeJetPlots()
   //PP 2017 MC (Added muon quality cut histograms)
   //TFile *file_in =  new TFile("InRootFiles/DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_20Aug2019_All.root","R");
 
-  //PP 2017 MC (quality cut histograms+Mu Jet Trigger)
+  //PP 2017 MC (quality cut histograms + Mu Jet Trigger)
   //TFile *file_in =  new TFile("InRootFiles/DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_MuJetTriggerApplied_29Aug2019_All.root","R");
 
   //PP 2017 MC (Added reco mu-gen mu matched histo) : Run for MC muon matching test
@@ -197,18 +191,26 @@ void MakeJetPlots()
   //PP 2017 MC (Added reco mu-gen mu matched histo) : Run for MC muon matching test
   //TFile *file_in =  new TFile("InRootFiles/DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_MCMatched_04Sep19_All.root","R");
 
-  //test skim file (changes the number of bins and maximum jet pt for jet histos)
-  //TFile *file_in =  new TFile("/Users/vineet/UICWork/JetMuonAnalysis/MC/JetAnalyzer/DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_28Aug2019.root","R");
+  /*************************
+  //Changes the Jet pT number of bins and maximum pT to synchronize with the Data from here
+  *************************/
 
-  TFile *file_in =  new TFile("/Users/vineet/UICWork/JetMuonAnalysis/MC/JetAnalyzer/JetAnalyzerOutPut_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_TriggerApplied_28Aug2019.root","R");
-
-
-
-
+  //1. Should check the effect of bin changes on Jet fractions (need file without trigger applied)
+  //TFile *file_in =  new TFile("InRootFiles/JetAnalyzerOutPut_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeVEta24_TighestMuon_RefPartonFlvForB_10Sep19_All.root","R");
   
+  //2. Should check the effect of muon+Jet trigger on Jet fractions (with trigger applied)
+  // Muon+Jet trigger applied : HLT_HIL3Mu5_AK4PFJet30_v1
+  //TFile *file_in =  new TFile("InRootFiles/JetAnalyzerOutPut_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeVEta24_TighestMuon_RefPartonFlvForB_TriggerApplied_10Sep19_All.root","R");
+
+  //3. Should check the effect of mu |eta| < 1.4 (with trigger applied)
+  // Muon+Jet trigger applied : HLT_HIL3Mu5_AK4PFJet30_v1
+  TFile *file_in =  new TFile("InRootFiles/JetAnalyzerOutPut_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeVEta14_TighestMuon_RefPartonFlvForB_TriggerApplied_11Sep2019_All.root","R");
+  
+
+
+
   cout<<" Analysing file: "<<file_in->GetName()<<endl;
   
-
 
   TLatex *tb = new TLatex();
   tb->SetNDC();
@@ -222,13 +224,14 @@ void MakeJetPlots()
   tr->SetTextSize(0.04);
 
   
-  TFile *OutFile = new TFile("OutFile_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeV_TighestMuon_RefPartonFlvForB_TriggerApplied.root","RECREATE");
+  TFile *OutFile = new TFile("JetPlotOutPut_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeVEta14_TighestMuon_RefPartonFlvForB_TriggerApplied_11Sep19_All.root","RECREATE");
 
+  //MakeEventHistos(file_in, OutFile);
   //MakeGenJetPlots(file_in, GenJetPtMin, GenMuPtCut);
   MakeRecJetPlots(file_in, OutFile, RecJetPtMin);
   //MakeMuonPlots(file_in);
-  MakeMuonIDVarStudy(file_in);
-  MakeCSVTagPlots(file_in, OutFile);
+  //MakeMuonIDVarStudy(file_in);
+  //MakeCSVTagPlots(file_in, OutFile);
 
   //OutFile->Write();
   //OutFile->Close();

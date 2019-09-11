@@ -467,7 +467,6 @@ void MyMethod::MakeHistogramNameToHistogramTitle(TH1 *inHist)
 
 
 
-
 void MyMethod::GlamorizeHistogram(TH1 *InHist, Int_t LineColor, Int_t MarkerColor, Int_t MarkerStyle, Float_t MarkerSize)
 {
 
@@ -481,6 +480,32 @@ void MyMethod::GlamorizeHistogram(TH1 *InHist, Int_t LineColor, Int_t MarkerColo
   InHist->GetXaxis()->SetTitleSize(0.06);
   InHist->GetYaxis()->SetTitleSize(0.06);
  
+
+
+}
+
+void MyMethod::SetHistogramTitles(TH1 *InHist, const char *xTitle="", const char *yTitle="")
+{
+  // If no titles are given, keep the original ones
+  if(strcmp(xTitle, "") == 0) xTitle = InHist->GetXaxis()->GetTitle(); // To compare char*:s we need to use strcmp function provided by <cstring> library
+  if(strcmp(yTitle, "") == 0) yTitle = InHist->GetYaxis()->GetTitle();
+  InHist->GetXaxis()->SetTitle(xTitle); // Set the axis title
+  InHist->GetYaxis()->SetTitle(yTitle); // Set the axis title
+}
+
+
+
+void MyMethod::SetHistogramAxisRange(TH1 *InHist, Double_t xmin = -999, Double_t xmax = -999, Double_t ymin =-999, Double_t ymax=-999)
+{
+
+  if(xmin != -999 && xmax != -999) InHist->GetXaxis()->SetRangeUser(xmin,xmax);
+
+  if(ymin != -999 && ymax != -999) InHist->GetYaxis()->SetRangeUser(ymin,ymax);
+  
+
+  //if(ymin != -999 && ymax != -999) InHist->SetMinimum(ymin);
+  //if(ymin != -999 && ymax != -999) InHist->SetMaximum(ymax);
+
 
 
 }

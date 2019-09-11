@@ -50,6 +50,7 @@ void MyMethod::FlavouredHistogram(TH1 *InHist, Int_t LineColor, Int_t MarkerColo
   InHist->SetMarkerColor(MarkerColor);
   InHist->SetMarkerStyle(MarkerStyle);
   InHist->SetMarkerSize(MarkerSize);
+  //InHist->GetXaxis()->SetRangeUser(50.0,500.0);
   InHist->GetXaxis()->SetNdivisions(505);
   InHist->GetXaxis()->SetLabelSize(0.06);
   InHist->GetXaxis()->SetTitleOffset(1.4);
@@ -248,7 +249,7 @@ TLegend *MyMethod::MyLegend(Double_t x1, Double_t y1, Double_t x2, Double_t y2)
   TH1D *MyMethod::Get_Ghost_Hist(const char *Name, const char *Title, Double_t YMin, Double_t YMax, const char *XTitle, const char *YTitle)
   {
 
-    TH1D *hist_Ghost = new TH1D(Name,Title,100,0.0,450);
+    TH1D *hist_Ghost = new TH1D(Name,Title,100,0.0,500);
     hist_Ghost->GetXaxis()->SetNdivisions(505);
     hist_Ghost->GetYaxis()->SetRangeUser(YMin,YMax);
     hist_Ghost->GetYaxis()->SetTitle(YTitle);
