@@ -43,6 +43,11 @@
 #include "THnSparse.h"
 
 
+
+using namespace std;
+
+
+
 //#include "CMS/tdrstyle.C"
 //#include "CMS/CMS_lumi.C"
 
@@ -58,14 +63,18 @@ Int_t TightMuonIDCuts(Int_t isGlobal, Int_t isTracker, float muEta, float muChi2
 
 Int_t TightMuonIDCuts_OtherThanStudied(Int_t isGlobal, Int_t isTracker, float muChi2NDF, float muInnerD0, float muInnerDz, Int_t muMuonHits, Int_t muStations,
 				       Int_t muTrkLayers, Int_t muPixelHits, Int_t CutNumberStudied);
-
-
-
-
 double  deltaR(TLorentzVector GenMuon, TLorentzVector RecoMuon);
 double  deltaPt(TLorentzVector GenMuon, TLorentzVector RecoMuon);
 
 Double_t getPtRel(Double_t MuonPt, Double_t MuonEta, Double_t MuonPhi, Double_t JetPt, Double_t JetEta, Double_t JetPhi);
+
+
+
+
+
+
+
+
 
 
 
@@ -815,6 +824,7 @@ void JetAnalyzer::Loop()
   const Int_t NBinsMuonIsGlobal = 5; 
   Double_t MuonIsGlobalMin = -0.5;
   Double_t MuonIsGlobalMax = 4.5;
+  
   TH1D *histMuonIsGlobal = new TH1D("histMuonIsGlobal","histMuonIsGlobal",NBinsMuonIsGlobal,MuonIsGlobalMin,MuonIsGlobalMax);
   histMuonIsGlobal->GetXaxis()->SetTitle("Muon IsGlobal");
   histMuonIsGlobal->GetYaxis()->SetTitle("Entries"); 
@@ -876,7 +886,7 @@ void JetAnalyzer::Loop()
   histNGMuonD0->GetXaxis()->SetTitle("NGMuon D0");
   histNGMuonD0->GetYaxis()->SetTitle("Entries");
 
-
+  
   //6.mu_Dz
   const Int_t NBinsMuonDz    = 100;
   Double_t MuonDzMin = -1.0;
@@ -888,6 +898,37 @@ void JetAnalyzer::Loop()
   TH1D *histNGMuonDz = new TH1D("histNGMuonDz","histNGMuonDz",NBinsMuonDz,MuonDzMin,MuonDzMax);
   histNGMuonDz->GetXaxis()->SetTitle("NGMuon Dz");
   histNGMuonDz->GetYaxis()->SetTitle("Entries");
+
+
+  //Muon Dxy-Dz 2D Histo 
+  TH2D *histMuonDxyDz = new TH2D("histMuonDxyDz","histMuonDxyDz",NBinsMuonD0,MuonD0Min,MuonD0Max,NBinsMuonDz,MuonDzMin,MuonDzMax);
+  histMuonDxyDz->GetXaxis()->SetTitle("Muon D0");
+  histMuonDxyDz->GetYaxis()->SetTitle("Muon Dz");
+  histMuonDxyDz->GetZaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH2D *histNGMuonDxyDz = new TH2D("histNGMuonDxyDz","histNGMuonDxyDz",NBinsMuonD0,MuonD0Min,MuonD0Max,NBinsMuonDz,MuonDzMin,MuonDzMax);
+  histNGMuonDxyDz->GetXaxis()->SetTitle("NGMuon D0");
+  histNGMuonDxyDz->GetYaxis()->SetTitle("NGMuon Dz");
+  histNGMuonDxyDz->GetZaxis()->SetTitle("Entries");
+
+
+  
+  //Muon Dxy-Dz 2D Histo 
+
+  const Int_t NBinsMuonDR    = 200;
+  Double_t MuonDRMin = 0.0;
+  Double_t MuonDRMax =  1.0;
+ 
+  TH1D *histMuonDR = new TH1D("histMuonDR","histMuonDR",NBinsMuonDR,MuonDRMin,MuonDRMax);
+  histMuonDR->GetXaxis()->SetTitle("Muon DR");
+  histMuonDR->GetYaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  
+  TH1D *histNGMuonDR = new TH1D("histNGMuonDR","histNGMuonDR",NBinsMuonDR,MuonDRMin,MuonDRMax);
+  histNGMuonDR->GetXaxis()->SetTitle("NGMuon DR");
+  histNGMuonDR->GetYaxis()->SetTitle("Entries");
+
+  
   
   //7.mu_chi2ndf
   const Int_t NBinsMuonChi2NDF    = 100;
@@ -1051,6 +1092,215 @@ void JetAnalyzer::Loop()
   TH1D *histNGMuonMuStations = new TH1D("histNGMuonMuStations","histNGMuonMuStations",NBinsMuonMuStations,MuonMuStationsMin,MuonMuStationsMax);
   histNGMuonMuStations->GetXaxis()->SetTitle("NGMuon MuStations");
   histNGMuonMuStations->GetYaxis()->SetTitle("Entries");
+
+
+  //===========================================================================================================//
+  //=================================== Here I make histograms for Jet Matched muons ==========================//
+  //===========================================================================================================//
+
+
+  
+  //1. IsGlobalMuon
+  TH1D *histJetMuonIsGlobal = new TH1D("histJetMuonIsGlobal","histJetMuonIsGlobal",NBinsMuonIsGlobal,MuonIsGlobalMin,MuonIsGlobalMax);
+  histJetMuonIsGlobal->GetXaxis()->SetTitle("JetMuon IsGlobal");
+  histJetMuonIsGlobal->GetYaxis()->SetTitle("Entries"); 
+  //NG --> No Gen Muon
+  TH1D *histNGJetMuonIsGlobal = new TH1D("histNGJetMuonIsGlobal","histNGJetMuonIsGlobal",NBinsMuonIsGlobal,MuonIsGlobalMin,MuonIsGlobalMax);
+  histNGJetMuonIsGlobal->GetXaxis()->SetTitle("NGJetMuon IsGlobal");
+  histNGJetMuonIsGlobal->GetYaxis()->SetTitle("Entries");
+
+  
+  //2. IsTrackerMuon
+  TH1D *histJetMuonIsTracker = new TH1D("histJetMuonIsTracker","histJetMuonIsTracker",NBinsMuonIsTracker,MuonIsTrackerMin,MuonIsTrackerMax);
+  histJetMuonIsTracker->GetXaxis()->SetTitle("JetMuon IsTracker");
+  histJetMuonIsTracker->GetYaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH1D *histNGJetMuonIsTracker = new TH1D("histNGJetMuonIsTracker","histNGJetMuonIsTracker",NBinsMuonIsTracker,MuonIsTrackerMin,MuonIsTrackerMax);
+  histNGJetMuonIsTracker->GetXaxis()->SetTitle("NGJetMuon IsTracker");
+  histNGJetMuonIsTracker->GetYaxis()->SetTitle("Entries");
+
+
+  //3. IsPFMuon
+  TH1D *histJetMuonIsPF = new TH1D("histJetMuonIsPF","histJetMuonIsPF",NBinsMuonIsPF,MuonIsPFMin,MuonIsPFMax);
+  histJetMuonIsPF->GetXaxis()->SetTitle("JetMuon IsPF");
+  histJetMuonIsPF->GetYaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH1D *histNGJetMuonIsPF = new TH1D("histNGJetMuonIsPF","histNGJetMuonIsPF",NBinsMuonIsPF,MuonIsPFMin,MuonIsPFMax);
+  histNGJetMuonIsPF->GetXaxis()->SetTitle("NGJetMuon IsPF");
+  histNGJetMuonIsPF->GetYaxis()->SetTitle("Entries");  
+
+
+  //4. IsSTAMuon
+  TH1D *histJetMuonIsSTA = new TH1D("histJetMuonIsSTA","histJetMuonIsSTA",NBinsMuonIsSTA,MuonIsSTAMin,MuonIsSTAMax);
+  histJetMuonIsSTA->GetXaxis()->SetTitle("JetMuon IsSTA");
+  histJetMuonIsSTA->GetYaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH1D *histNGJetMuonIsSTA = new TH1D("histNGJetMuonIsSTA","histNGJetMuonIsSTA",NBinsMuonIsSTA,MuonIsSTAMin,MuonIsSTAMax);
+  histNGJetMuonIsSTA->GetXaxis()->SetTitle("NGJetMuon IsSTA");
+  histNGJetMuonIsSTA->GetYaxis()->SetTitle("Entries");
+
+
+  //5.mu_D0
+  TH1D *histJetMuonD0 = new TH1D("histJetMuonD0","histJetMuonD0",NBinsMuonD0,MuonD0Min,MuonD0Max);
+  histJetMuonD0->GetXaxis()->SetTitle("JetMuon D0");
+  histJetMuonD0->GetYaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH1D *histNGJetMuonD0 = new TH1D("histNGJetMuonD0","histNGJetMuonD0",NBinsMuonD0,MuonD0Min,MuonD0Max);
+  histNGJetMuonD0->GetXaxis()->SetTitle("NGJetMuon D0");
+  histNGJetMuonD0->GetYaxis()->SetTitle("Entries");
+
+  
+  //6.mu_Dz
+  TH1D *histJetMuonDz = new TH1D("histJetMuonDz","histJetMuonDz",NBinsMuonDz,MuonDzMin,MuonDzMax);
+  histJetMuonDz->GetXaxis()->SetTitle("JetMuon Dz");
+  histJetMuonDz->GetYaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH1D *histNGJetMuonDz = new TH1D("histNGJetMuonDz","histNGJetMuonDz",NBinsMuonDz,MuonDzMin,MuonDzMax);
+  histNGJetMuonDz->GetXaxis()->SetTitle("NGJetMuon Dz");
+  histNGJetMuonDz->GetYaxis()->SetTitle("Entries");
+
+  //Muon Dxy-Dz 2D Histo 
+  TH2D *histJetMuonDxyDz = new TH2D("histJetMuonDxyDz","histJetMuonDxyDz",NBinsMuonD0,MuonD0Min,MuonD0Max,NBinsMuonDz,MuonDzMin,MuonDzMax);
+  histJetMuonDxyDz->GetXaxis()->SetTitle("JetMuon D0");
+  histJetMuonDxyDz->GetYaxis()->SetTitle("JetMuon Dz");
+  histJetMuonDxyDz->GetZaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH2D *histNGJetMuonDxyDz = new TH2D("histNGJetMuonDxyDz","histNGJetMuonDxyDz",NBinsMuonD0,MuonD0Min,MuonD0Max,NBinsMuonDz,MuonDzMin,MuonDzMax);
+  histNGJetMuonDxyDz->GetXaxis()->SetTitle("NGJetMuon D0");
+  histNGJetMuonDxyDz->GetYaxis()->SetTitle("NGJetMuon Dz");
+  histNGJetMuonDxyDz->GetZaxis()->SetTitle("Entries");
+
+
+  
+  //Muon Dxy-Dz 2D Histo 
+  TH1D *histJetMuonDR = new TH1D("histJetMuonDR","histJetMuonDR",NBinsMuonDR,MuonDRMin,MuonDRMax);
+  histJetMuonDR->GetXaxis()->SetTitle("Muon DR");
+  histJetMuonDR->GetYaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH1D *histNGJetMuonDR = new TH1D("histNGJetMuonDR","histNGJetMuonDR",NBinsMuonDR,MuonDRMin,MuonDRMax);
+  histNGJetMuonDR->GetXaxis()->SetTitle("NGJetMuon DR");
+  histNGJetMuonDR->GetYaxis()->SetTitle("Entries");
+  
+  //7.mu_chi2ndf
+  TH1D *histJetMuonChi2NDF = new TH1D("histJetMuonChi2NDF","histJetMuonChi2NDF",NBinsMuonChi2NDF,MuonChi2NDFMin,MuonChi2NDFMax);
+  histJetMuonChi2NDF->GetXaxis()->SetTitle("JetMuon Chi2NDF");
+  histJetMuonChi2NDF->GetYaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH1D *histNGJetMuonChi2NDF = new TH1D("histNGJetMuonChi2NDF","histNGJetMuonChi2NDF",NBinsMuonChi2NDF,MuonChi2NDFMin,MuonChi2NDFMax);
+  histNGJetMuonChi2NDF->GetXaxis()->SetTitle("NGJetMuon Chi2NDF");
+  histNGJetMuonChi2NDF->GetYaxis()->SetTitle("Entries");
+
+  
+  //8.mu_innerD0
+  TH1D *histJetMuonInnerD0 = new TH1D("histJetMuonInnerD0","histJetMuonInnerD0",NBinsMuonInnerD0,MuonInnerD0Min,MuonInnerD0Max);
+  histJetMuonInnerD0->GetXaxis()->SetTitle("JetMuon InnerD0");
+  histJetMuonInnerD0->GetYaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH1D *histNGJetMuonInnerD0 = new TH1D("histNGJetMuonInnerD0","histNGJetMuonInnerD0",NBinsMuonInnerD0,MuonInnerD0Min,MuonInnerD0Max);
+  histNGJetMuonInnerD0->GetXaxis()->SetTitle("NGJetMuon InnerD0");
+  histNGJetMuonInnerD0->GetYaxis()->SetTitle("Entries");
+  
+  //9.mu_innerD0Err
+  TH1D *histJetMuonInnerD0Err = new TH1D("histJetMuonInnerD0Err","histJetMuonInnerD0Err",NBinsMuonInnerD0Err,MuonInnerD0ErrMin,MuonInnerD0ErrMax);
+  histJetMuonInnerD0Err->GetXaxis()->SetTitle("JetMuon InnerD0Err");
+  histJetMuonInnerD0Err->GetYaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH1D *histNGJetMuonInnerD0Err = new TH1D("histNGJetMuonInnerD0Err","histNGJetMuonInnerD0Err",NBinsMuonInnerD0Err,MuonInnerD0ErrMin,MuonInnerD0ErrMax);
+  histNGJetMuonInnerD0Err->GetXaxis()->SetTitle("NGJetMuon InnerD0Err");
+  histNGJetMuonInnerD0Err->GetYaxis()->SetTitle("Entries");
+
+  //10.mu_innerDz
+  TH1D *histJetMuonInnerDz = new TH1D("histJetMuonInnerDz","histJetMuonInnerDz",NBinsMuonInnerDz,MuonInnerDzMin,MuonInnerDzMax);
+  histJetMuonInnerDz->GetXaxis()->SetTitle("JetMuon InnerDz");
+  histJetMuonInnerDz->GetYaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH1D *histNGJetMuonInnerDz = new TH1D("histNGJetMuonInnerDz","histNGJetMuonInnerDz",NBinsMuonInnerDz,MuonInnerDzMin,MuonInnerDzMax);
+  histNGJetMuonInnerDz->GetXaxis()->SetTitle("NGJetMuon InnerDz");
+  histNGJetMuonInnerDz->GetYaxis()->SetTitle("Entries");
+  
+  //11.mu_innerDzErr
+  TH1D *histJetMuonInnerDzErr = new TH1D("histJetMuonInnerDzErr","histJetMuonInnerDzErr",NBinsMuonInnerDzErr,MuonInnerDzErrMin,MuonInnerDzErrMax);
+  histJetMuonInnerDzErr->GetXaxis()->SetTitle("JetMuon InnerDzErr");
+  histJetMuonInnerDzErr->GetYaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH1D *histNGJetMuonInnerDzErr = new TH1D("histNGJetMuonInnerDzErr","histNGJetMuonInnerDzErr",NBinsMuonInnerDzErr,MuonInnerDzErrMin,MuonInnerDzErrMax);
+  histNGJetMuonInnerDzErr->GetXaxis()->SetTitle("NGJetMuon InnerDzErr");
+  histNGJetMuonInnerDzErr->GetYaxis()->SetTitle("Entries");
+
+  
+  //12.mu_innerD0/mu_innerD0Err
+  TH1D *histJetMuonInnerD0Norm = new TH1D("histJetMuonInnerD0Norm","histJetMuonInnerD0Norm",NBinsMuonInnerD0Norm,MuonInnerD0NormMin,MuonInnerD0NormMax);
+  histJetMuonInnerD0Norm->GetXaxis()->SetTitle("JetMuon InnerD0Norm");
+  histJetMuonInnerD0Norm->GetYaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH1D *histNGJetMuonInnerD0Norm = new TH1D("histNGJetMuonInnerD0Norm","histNGJetMuonInnerD0Norm",NBinsMuonInnerD0Norm,MuonInnerD0NormMin,MuonInnerD0NormMax);
+  histNGJetMuonInnerD0Norm->GetXaxis()->SetTitle("NGJetMuon InnerD0Norm");
+  histNGJetMuonInnerD0Norm->GetYaxis()->SetTitle("Entries");
+  
+  //13.mu_innerDz/mu_innerDzErr
+  TH1D *histJetMuonInnerDzNorm = new TH1D("histJetMuonInnerDzNorm","histJetMuonInnerDzNorm",NBinsMuonInnerDzNorm,MuonInnerDzNormMin,MuonInnerDzNormMax);
+  histJetMuonInnerDzNorm->GetXaxis()->SetTitle("JetMuon InnerDzNorm");
+  histJetMuonInnerDzNorm->GetYaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH1D *histNGJetMuonInnerDzNorm = new TH1D("histNGJetMuonInnerDzNorm","histNGJetMuonInnerDzNorm",NBinsMuonInnerDzNorm,MuonInnerDzNormMin,MuonInnerDzNormMax);
+  histNGJetMuonInnerDzNorm->GetXaxis()->SetTitle("NGJetMuon InnerDzNorm");
+  histNGJetMuonInnerDzNorm->GetYaxis()->SetTitle("Entries");
+
+  //14. mu_trkLayers
+  TH1D *histJetMuonTrkLayers = new TH1D("histJetMuonTrkLayers","histJetMuonTrkLayers",NBinsMuonTrkLayers,MuonTrkLayersMin,MuonTrkLayersMax);
+  histJetMuonTrkLayers->GetXaxis()->SetTitle("JetMuon TrkLayers");
+  histJetMuonTrkLayers->GetYaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH1D *histNGJetMuonTrkLayers = new TH1D("histNGJetMuonTrkLayers","histNGJetMuonTrkLayers",NBinsMuonTrkLayers,MuonTrkLayersMin,MuonTrkLayersMax);
+  histNGJetMuonTrkLayers->GetXaxis()->SetTitle("NGJetMuon TrkLayers");
+  histNGJetMuonTrkLayers->GetYaxis()->SetTitle("Entries");
+
+  //15.mu_pixelLayers
+  TH1D *histJetMuonPixelLayers = new TH1D("histJetMuonPixelLayers","histJetMuonPixelLayers",NBinsMuonPixelLayers,MuonPixelLayersMin,MuonPixelLayersMax);
+  histJetMuonPixelLayers->GetXaxis()->SetTitle("JetMuon PixelLayers");
+  histJetMuonPixelLayers->GetYaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH1D *histNGJetMuonPixelLayers = new TH1D("histNGJetMuonPixelLayers","histNGJetMuonPixelLayers",NBinsMuonPixelLayers,MuonPixelLayersMin,MuonPixelLayersMax);
+  histNGJetMuonPixelLayers->GetXaxis()->SetTitle("NGJetMuon PixelLayers");
+  histNGJetMuonPixelLayers->GetYaxis()->SetTitle("Entries");
+
+  //16.mu_pixelHits
+  TH1D *histJetMuonPixelHits = new TH1D("histJetMuonPixelHits","histJetMuonPixelHits",NBinsMuonPixelHits,MuonPixelHitsMin,MuonPixelHitsMax);
+  histJetMuonPixelHits->GetXaxis()->SetTitle("JetMuon PixelHits");
+  histJetMuonPixelHits->GetYaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH1D *histNGJetMuonPixelHits = new TH1D("histNGJetMuonPixelHits","histNGJetMuonPixelHits",NBinsMuonPixelHits,MuonPixelHitsMin,MuonPixelHitsMax);
+  histNGJetMuonPixelHits->GetXaxis()->SetTitle("NGJetMuon PixelHits");
+  histNGJetMuonPixelHits->GetYaxis()->SetTitle("Entries");
+
+  //17.mu_muonHits
+  TH1D *histJetMuonMuHits = new TH1D("histJetMuonMuHits","histJetMuonMuHits",NBinsMuonMuHits,MuonMuHitsMin,MuonMuHitsMax);
+  histJetMuonMuHits->GetXaxis()->SetTitle("JetMuon MuHits");
+  histJetMuonMuHits->GetYaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH1D *histNGJetMuonMuHits = new TH1D("histNGJetMuonMuHits","histNGJetMuonMuHits",NBinsMuonMuHits,MuonMuHitsMin,MuonMuHitsMax);
+  histNGJetMuonMuHits->GetXaxis()->SetTitle("NGJetMuon MuHits");
+  histNGJetMuonMuHits->GetYaxis()->SetTitle("Entries");
+
+  //18.mu_trkQuality
+  TH1D *histJetMuonTrkQuality = new TH1D("histJetMuonTrkQuality","histJetMuonTrkQuality",NBinsMuonTrkQuality,MuonTrkQualityMin,MuonTrkQualityMax);
+  histJetMuonTrkQuality->GetXaxis()->SetTitle("JetMuon TrkQuality");
+  histJetMuonTrkQuality->GetYaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH1D *histNGJetMuonTrkQuality = new TH1D("histNGJetMuonTrkQuality","histNGJetMuonTrkQuality",NBinsMuonTrkQuality,MuonTrkQualityMin,MuonTrkQualityMax);
+  histNGJetMuonTrkQuality->GetXaxis()->SetTitle("NGJetMuon TrkQuality");
+  histNGJetMuonTrkQuality->GetYaxis()->SetTitle("Entries");
+
+  //19.mu_stations
+  TH1D *histJetMuonMuStations = new TH1D("histJetMuonMuStations","histJetMuonMuStations",NBinsMuonMuStations,MuonMuStationsMin,MuonMuStationsMax);
+  histJetMuonMuStations->GetXaxis()->SetTitle("JetMuon MuStations");
+  histJetMuonMuStations->GetYaxis()->SetTitle("Entries");
+  //NG --> No Gen Muon
+  TH1D *histNGJetMuonMuStations = new TH1D("histNGJetMuonMuStations","histNGJetMuonMuStations",NBinsMuonMuStations,MuonMuStationsMin,MuonMuStationsMax);
+  histNGJetMuonMuStations->GetXaxis()->SetTitle("NGJetMuon MuStations");
+  histNGJetMuonMuStations->GetYaxis()->SetTitle("Entries");
+
+  
   //=======================================================================================================================================//
   //================================= Muon Quality Cut Histograms Ends ===================================================================//
   //=======================================================================================================================================//
@@ -1173,34 +1423,39 @@ void JetAnalyzer::Loop()
   //==================================================================//
   //============ some global Cuts ===============================//
   //=================================================================//
-  const Int_t TriggerApplied = 1;
+  const Int_t TriggerApplied = 0;
+  const Int_t DEBUG_LEVEL =0;
 
+  
   const Double_t GenJetPtMinCut = 60.0; const Double_t JetPtMinCut = 60.0;
   const Double_t GenJetEtaMinCut = 2.0; const Double_t JetEtaMinCut = 2.0;
 
   const Double_t GenMuonPtMin = 5.0; const Double_t MuonPtMin = 5.0;
   const Double_t GenMuonEtaCut = 2.4; const Double_t MuonEtaCut = 2.4;
-
   
   if (fChain == 0) return;
   
   Long64_t nentries = fChain->GetEntriesFast();
-  //nentries=10;
-
-
+  //nentries=80;
   
   cout<< nentries <<" entries in "<< fChain->GetName()<<endl;
+
+
+  const Int_t Print_Thershold = 100000;
+
+  
   //Double_t Temp_Entries = 1595520;
   Long64_t nbytes = 0, nb = 0;
 
+  //////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////
   //Loop over the skim entries
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
 
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     fChain->GetEntry(jentry); 
-
-
+    
     // if (Cut(ientry) < 0) continue;
     //Double_t PtHatWeight = getPtHatWeight(pthat);
     //for pp 2017 MC
@@ -1232,34 +1487,21 @@ void JetAnalyzer::Loop()
     histEvtVtxZ_nw->Fill(vz);
 
     
-
-
-
-
-    
-    
     //This is only true for 2015 MC
     //if(pthat > 460) continue; //no crosssection above 460 on wiki     
 
     //puting HLT same as on data
     if(TriggerApplied == 1 && HLT_HIL3Mu5_AK4PFJet30_v1==0)continue;
 
-    if(jentry%100000==0){
-       
-      //((TotalEntries - i)/TotalEntries)*100
-      
+    if(jentry%Print_Thershold==0){
       //cout<<" Event "<<jentry<<" % remaining "<<((Temp_Entries-jentry)/Temp_Entries)*100.0<<endl;
       cout<<endl;
-      
+      cout<<" Event "<<jentry<<endl;
       cout<< " Total number of Tracks    : "<<trkPt->size()<<endl;
       cout<< " Total number of PF Jets   : "<<pf_jtpt->size()<<endl;
       cout<< " Total number of ref parton   : "<<pf_refparton_flavor->size()<<endl;
-      
       cout<< " Total number of gen Jets   : "<<genpt->size()<<endl;
       cout<< " Total number of ref pt     :   "<<pf_refpt->size()<<endl;
-      
-      cout<<endl;
-      
       cout<< " Total number of Calo Jets : "<< calo_jtpt->size()<<endl;
       cout<< " Total number of Muons     : "<<mu_pt->size()<<endl;
       cout<< " Total number of Gen Particles     : "<<pt->size()<<endl;
@@ -1302,7 +1544,7 @@ void JetAnalyzer::Loop()
 	 hist_GenMaster_GenMuEta_GenMuPt_GenMuPhi->Fill(GenMuonEta,GenMuonPt,GenMuonPhi,EventWeight);
 	 	 
        }
-     }
+     }//gen particle loop ends
      
      //=======================================================================//
      // ================= Gen DiMuons invariant mass ===========================// 
@@ -1331,8 +1573,8 @@ void JetAnalyzer::Loop()
      //============================================================================//
 
 
-     if(jentry%100000==0){cout<<" Total number of gen Jets "<<genpt->size()<<endl;}
-
+     if(jentry%Print_Thershold==0){cout<<" Total number of gen Jets "<<genpt->size()<<endl;}
+     
      histNumberOfGenJets->Fill(genpt->size());
 
      
@@ -1430,7 +1672,7 @@ void JetAnalyzer::Loop()
        Double_t GenMuonGenJetDR_Max = 0.4;
        TLorentzVector MatchedGenMuon;
 
-       if(jentry%100000==0) cout<<" GenMuos Size "<<GenMuons.size()<<endl;
+       if(jentry%Print_Thershold==0) cout<<" GenMuos Size "<<GenMuons.size()<<endl;
 
        for(unsigned long j=0; j<GenMuons.size();j++)
 	 {
@@ -1495,202 +1737,244 @@ void JetAnalyzer::Loop()
      //===============================================================//
      //reco mu loop
      std::vector<TLorentzVector> MuonsForJets;
+
+     std::vector<MyParticle> MuonsWithIdForJets;
      
      std::vector<TLorentzVector> PositiveMuons;
      std::vector<TLorentzVector> NegativeMuons;
 
+
+     if(DEBUG_LEVEL==2){cout<<" number of muons in this event "<<mu_pt->size()<<" event "<<jentry<<endl;}
+
      //matched to reco muon
      TLorentzVector genMuonMatched;
      
-     
-      for(unsigned long i=0; i<mu_pt->size();i++){
-		
-	Double_t MuonPt = mu_pt->at(i);
-	Double_t MuonEta = mu_eta->at(i);
  
-	if(MuonPt < MuonPtMin || TMath::Abs(MuonEta) > MuonEtaCut)continue;
+     
+     for(unsigned long i=0; i<mu_pt->size();i++){
+       
+       Double_t MuonPt = mu_pt->at(i);
+       Double_t MuonEta = mu_eta->at(i);
 
+       if(DEBUG_LEVEL==2){cout<< " MuonPt "<<MuonPt<<endl;}
 	
+ 
 	
-	Double_t MuonPhi = mu_phi->at(i); 
+       if(MuonPt < MuonPtMin || TMath::Abs(MuonEta) > MuonEtaCut)continue;
 	
-	Int_t Mu_isGlobal = mu_isGlobal->at(i);
-	Int_t Mu_isTracker = mu_isTracker->at(i);
-	Int_t Mu_isPF = mu_isPF->at(i);
-	Int_t Mu_isSTA = mu_isSTA->at(i);
-	Int_t Mu_isGood = mu_isGood->at(i);
-	Int_t Mu_pixelLayers = mu_pixelLayers->at(i);
-	Int_t Mu_pixelHits = mu_pixelHits->at(i);
-	Int_t Mu_trkLayers = mu_trkLayers->at(i);
-	float Mu_D0 = mu_D0->at(i);
-	float Mu_Dz = mu_Dz->at(i);
-	float Mu_chi2ndf = mu_chi2ndf->at(i);
-	float Mu_innerD0 =  mu_innerD0->at(i);
-	float Mu_innerDz =  mu_innerDz->at(i);
-	float Mu_muonHits = mu_muonHits->at(i);
-	Int_t Mu_stations = mu_stations->at(i);
-	//new quality cuts added for histos	
-	float Mu_innerD0Err =  mu_innerD0Err->at(i);
-	float Mu_innerDzErr =  mu_innerDzErr->at(i);
+       Double_t MuonPhi = mu_phi->at(i); 
+       
+       Int_t Mu_isGlobal = mu_isGlobal->at(i);
+       Int_t Mu_isTracker = mu_isTracker->at(i);
+       Int_t Mu_isPF = mu_isPF->at(i);
+       Int_t Mu_isSTA = mu_isSTA->at(i);
+       Int_t Mu_isGood = mu_isGood->at(i);
+       Int_t Mu_pixelLayers = mu_pixelLayers->at(i);
+       Int_t Mu_pixelHits = mu_pixelHits->at(i);
+       Int_t Mu_trkLayers = mu_trkLayers->at(i);
+       
+       float Mu_D0 = mu_D0->at(i);
+       float Mu_Dz = mu_Dz->at(i);
+       float Mu_chi2ndf = mu_chi2ndf->at(i);
+       float Mu_innerD0 =  mu_innerD0->at(i);
+       float Mu_innerDz =  mu_innerDz->at(i);
+       float Mu_muonHits = mu_muonHits->at(i);
+       Int_t Mu_stations = mu_stations->at(i);
+       //new quality cuts added for histos	
+       float Mu_innerD0Err =  mu_innerD0Err->at(i);
+       float Mu_innerDzErr =  mu_innerDzErr->at(i);
+       float Mu_innerD0Norm =  Mu_innerD0/Mu_innerD0Err;
+       float Mu_innerDzNorm =  Mu_innerDz/Mu_innerDzErr;
+       Int_t Mu_trkQuality = mu_trkQuality->at(i);
+       
+       
+       TLorentzVector Muon;
+       Muon.SetPtEtaPhiM(MuonPt, MuonEta, MuonPhi, MuonMass); 
+     
+       MyParticle MuonWithID;
+       MuonWithID.SetPtEtaPhiM(MuonPt, MuonEta, MuonPhi, MuonMass);
+       MuonWithID.SetParticle_IntQualityCuts(Mu_isGlobal,  Mu_isTracker,  Mu_isPF,  Mu_isSTA,  Mu_isGood,
+					     Mu_pixelLayers,  Mu_pixelHits, Mu_trkLayers,  Mu_stations,
+					     Mu_trkQuality);
+       MuonWithID.SetParticle_FloatQualityCuts( Mu_D0,  Mu_Dz,  Mu_chi2ndf,  Mu_innerD0,  Mu_innerDz,  Mu_muonHits,
+						Mu_innerD0Err,  Mu_innerDzErr,  Mu_innerD0Norm,  Mu_innerDzNorm);	  
+              
 
-	float Mu_innerD0Norm =  Mu_innerD0/Mu_innerD0Err;
-	float Mu_innerDzNorm =  Mu_innerDz/Mu_innerDzErr;
-
+       //Gen Muon matching
+       int smallestDRindex =0;
+       double smallestDR = 1000.0;
+       Double_t GenMuRecMuDRCut = 0.3;
+       
+       for(unsigned long j=0; j<GenMuons.size();j++)
+	 {
+	   TLorentzVector genMuon = GenMuons.at(j);
+	   
+	   Double_t RecMuGenMuDR = deltaR(genMuon,Muon);
+	   Double_t RecMuGenMuDPt = deltaPt(genMuon,Muon);
+	   
+	   histGenMuRecMuDRVsDPt->Fill(RecMuGenMuDR,RecMuGenMuDPt,EventWeight);
+	   
+	   
+	   histGenMuRecMuDRVsPt->Fill(RecMuGenMuDR,Muon.Pt(),EventWeight);
+	   histGenMuRecMuDRVsEta->Fill(RecMuGenMuDR,Muon.Eta(),EventWeight);
+	   histGenMuRecMuDRVsPhi->Fill(RecMuGenMuDR,Muon.Phi(),EventWeight);
+	   
+	   if(RecMuGenMuDR<smallestDR)
+	     {
+	       smallestDR = RecMuGenMuDR;
+	       smallestDRindex=j;
+	     }
+	 }//gen muon loop inside rec muon
 	
-	Int_t Mu_trkQuality = mu_trkQuality->at(i);
+       Int_t MCMatch = 0;
+       if(smallestDR < GenMuRecMuDRCut){
+	 genMuonMatched = GenMuons.at(smallestDRindex);
+
+	 if(DEBUG_LEVEL ==2){
+	   cout<< " Gen Muon found "<<endl;
+	   cout<<" Rec Mu "<< MuonPt <<"  "<<MuonEta<<"  "<<MuonPhi<<endl;
+	   cout<<" Gen Mu "<< genMuonMatched.Pt() <<"  "<< genMuonMatched.Eta() <<"  "<<genMuonMatched.Phi()<<endl;
+	 }
+	 //these are gen muon variables which are matched to reco muon
+	 //these reco muons may not have passed the quality cuts
+	 hist_GenMaster_RecoMuMatched_GenMuEta_GenMuPt_GenMuPhi->Fill(genMuonMatched.Eta(),genMuonMatched.Pt(),genMuonMatched.Phi(),EventWeight);
+	 MCMatch = 1;
+       }
+
+       MuonWithID.SetParticle_MCMatch(MCMatch);
+
+       //MuonsWithIdForJets is a vector of type MyParticle
+       //I push a Muon inside which have all the IDCuts
+       //also the MC matching info
+       MuonsWithIdForJets.push_back(MuonWithID);
+       
+
+       if(DEBUG_LEVEL ==2){cout<<MuonWithID.GetParticle_D0()<<" MC Match  "<<MuonWithID.GetParticle_MCMatch()<<endl;}
+
+
+       
+       //Fill muon quality cut histograms (Only considering global && tracker muons) 
+       Int_t BasicCuts =0;
+       if(Mu_isGlobal==1 && Mu_isTracker==1){BasicCuts=1;}
+       
 	
-	//Gen Muon matching
-	TLorentzVector Muon;
-	Muon.SetPtEtaPhiM(MuonPt, MuonEta, MuonPhi, MuonMass); 
+       if(MCMatch==1){
+	 
+	 //cuts used in the analysis
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,1)==1){histMuonIsGlobal->Fill(Mu_isGlobal,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,2)==1){histMuonIsTracker->Fill(Mu_isTracker,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,3)==1){histMuonChi2NDF->Fill(Mu_chi2ndf,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,4)==1){histMuonInnerD0->Fill(Mu_innerD0,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,5)==1){histMuonInnerDz->Fill(Mu_innerDz,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,6)==1){histMuonMuHits->Fill(Mu_muonHits,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,7)==1){histMuonMuStations->Fill(Mu_stations,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,8)==1){histMuonTrkLayers->Fill(Mu_trkLayers,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,9)==1){histMuonPixelHits->Fill(Mu_pixelHits,EventWeight);}
+	 
 
-	int smallestDRindex =0;
-	double smallestDR = 1000.0;
-	Double_t GenMuRecMuDRCut = 0.3;
-	for(unsigned long j=0; j<GenMuons.size();j++)
-	  {
-	    TLorentzVector genMuon = GenMuons.at(j);
-	    
-	    Double_t RecMuGenMuDR = deltaR(genMuon,Muon);
-	    Double_t RecMuGenMuDPt = deltaPt(genMuon,Muon);
-
-	    histGenMuRecMuDRVsDPt->Fill(RecMuGenMuDR,RecMuGenMuDPt,EventWeight);
-
-	    
-	    histGenMuRecMuDRVsPt->Fill(RecMuGenMuDR,Muon.Pt(),EventWeight);
-	    histGenMuRecMuDRVsEta->Fill(RecMuGenMuDR,Muon.Eta(),EventWeight);
-	    histGenMuRecMuDRVsPhi->Fill(RecMuGenMuDR,Muon.Phi(),EventWeight);
-
-	    if(RecMuGenMuDR<smallestDR)
-	      {
-		smallestDR = RecMuGenMuDR;
-		smallestDRindex=j;
-	      }
-	  }//gen muon loop inside rec muon
-	
-	Int_t MCMatch = 0;
-	if(smallestDR < GenMuRecMuDRCut){
-	  genMuonMatched = GenMuons.at(smallestDRindex);
-
-	  //cout<< " Gen Muon found "<<endl;
-	  //cout<<" Rec Mu "<< MuonPt <<"  "<<MuonEta<<"  "<<MuonPhi<<endl;
-	  //cout<<" Gen Mu "<< genMuonMatched.Pt() <<"  "<< genMuonMatched.Eta() <<"  "<<genMuonMatched.Phi()<<endl;
-
-	  //these are gen muon variables which are matched to reco muon
-	  //these reco muons may not have passed the quality cuts
-	  hist_GenMaster_RecoMuMatched_GenMuEta_GenMuPt_GenMuPhi->Fill(genMuonMatched.Eta(),genMuonMatched.Pt(),genMuonMatched.Phi(),EventWeight);
-	  MCMatch = 1;
-	}
-	
-	//Fill muon quality cut histograms (Only considering global && tracker muons) 
-	Int_t BasicCuts =0;
-	if(Mu_isGlobal==1 && Mu_isTracker==1){BasicCuts=1;}
-	//
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,10)==1){
+	   
+	   histMuonDxyDz->Fill(Mu_innerD0,Mu_innerDz,EventWeight);
+	   histMuonDR->Fill(TMath::Sqrt((Mu_innerD0*Mu_innerD0)+(Mu_innerDz*Mu_innerDz)),EventWeight);
+	 }
 
 
 
-	//Int_t TightMuonIDCuts_OtherThanStudied(Int_t isGlobal, Int_t isTracker, float muChi2NDF, float muInnerD0, float muInnerDz, Int_t muMuonHits, Int_t muStations,
-	//			       Int_t muTrkLayers, Int_t muPixelHits, Int_t CutNumberStudied)
-
-
-
-	
-	if(MCMatch==1){
-	  //cuts used in the analysis
-	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,1)==1){histMuonIsGlobal->Fill(Mu_isGlobal,EventWeight);}
-	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,2)==1){histMuonIsTracker->Fill(Mu_isTracker,EventWeight);}
-	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,3)==1){histMuonChi2NDF->Fill(Mu_chi2ndf,EventWeight);}
-	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,4)==1){histMuonInnerD0->Fill(Mu_innerD0,EventWeight);}
-	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,5)==1){histMuonInnerDz->Fill(Mu_innerDz,EventWeight);}
-	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,6)==1){histMuonMuHits->Fill(Mu_muonHits,EventWeight);}
-	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,7)==1){histMuonMuStations->Fill(Mu_stations,EventWeight);}
-	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,8)==1){histMuonTrkLayers->Fill(Mu_trkLayers,EventWeight);}
-	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,9)==1){histMuonPixelHits->Fill(Mu_pixelHits,EventWeight);}
-
-	  //cuts not used in the analysis studied after applying all other cuts
-	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,0)==1){
-	    histMuonIsPF->Fill(Mu_isPF,EventWeight);
-	    histMuonIsSTA->Fill(Mu_isSTA,EventWeight);
-	    histMuonD0->Fill(Mu_D0,EventWeight);
-	    histMuonDz->Fill(Mu_Dz,EventWeight);
-	    histMuonInnerD0Err->Fill(Mu_innerD0Err,EventWeight);
-	    histMuonInnerDzErr->Fill(Mu_innerDzErr,EventWeight);
-	    histMuonInnerD0Norm->Fill(Mu_innerD0Norm,EventWeight);
-	    histMuonInnerDzNorm->Fill(Mu_innerDzNorm,EventWeight);
-	    histMuonPixelLayers->Fill(Mu_pixelLayers,EventWeight);
-	    histMuonTrkQuality->Fill(Mu_trkQuality,EventWeight);
-	  }
-	}//if MCMatch ==1
-	
-
-
-	if(MCMatch==0){
-	  //cuts used in the analysis
-	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,1)==1){histNGMuonIsGlobal->Fill(Mu_isGlobal,EventWeight);}
-	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,2)==1){histNGMuonIsTracker->Fill(Mu_isTracker,EventWeight);}
-	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,3)==1){histNGMuonChi2NDF->Fill(Mu_chi2ndf,EventWeight);}
-	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,4)==1){histNGMuonInnerD0->Fill(Mu_innerD0,EventWeight);}
-	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,5)==1){histNGMuonInnerDz->Fill(Mu_innerDz,EventWeight);}
-	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,6)==1){histNGMuonMuHits->Fill(Mu_muonHits,EventWeight);}
-	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,7)==1){histNGMuonMuStations->Fill(Mu_stations,EventWeight);}
-	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,8)==1){histNGMuonTrkLayers->Fill(Mu_trkLayers,EventWeight);}
-	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,9)==1){histNGMuonPixelHits->Fill(Mu_pixelHits,EventWeight);}
-	  //cuts not used in the analysis studied after applying all other cuts
-	  if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,0)==1){
-	    histNGMuonIsPF->Fill(Mu_isPF,EventWeight);
-	    histNGMuonIsSTA->Fill(Mu_isSTA,EventWeight);
-	    histNGMuonD0->Fill(Mu_D0,EventWeight);
-	    histNGMuonDz->Fill(Mu_Dz,EventWeight);
-	    histNGMuonInnerD0Err->Fill(Mu_innerD0Err,EventWeight);
-	    histNGMuonInnerDzErr->Fill(Mu_innerDzErr,EventWeight);
-	    histNGMuonInnerD0Norm->Fill(Mu_innerD0Norm,EventWeight);
-	    histNGMuonInnerDzNorm->Fill(Mu_innerDzNorm,EventWeight);
-	    histNGMuonPixelLayers->Fill(Mu_pixelLayers,EventWeight);
-	    histNGMuonTrkQuality->Fill(Mu_trkQuality,EventWeight);
-	  }
+	 //cuts not used in the analysis studied after applying all other cuts
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,0)==1){
+	   histMuonIsPF->Fill(Mu_isPF,EventWeight);
+	   histMuonIsSTA->Fill(Mu_isSTA,EventWeight);
+	   histMuonD0->Fill(Mu_D0,EventWeight);
+	   histMuonDz->Fill(Mu_Dz,EventWeight);
+	   histMuonInnerD0Err->Fill(Mu_innerD0Err,EventWeight);
+	   histMuonInnerDzErr->Fill(Mu_innerDzErr,EventWeight);
+	   histMuonInnerD0Norm->Fill(Mu_innerD0Norm,EventWeight);
+	   histMuonInnerDzNorm->Fill(Mu_innerDzNorm,EventWeight);
+	   histMuonPixelLayers->Fill(Mu_pixelLayers,EventWeight);
+	   histMuonTrkQuality->Fill(Mu_trkQuality,EventWeight);
+	 }
+       }//if MCMatch ==1
+       
+       
+       
+       if(MCMatch==0){
+	 //cuts used in the analysis
+	 
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,1)==1){histNGMuonIsGlobal->Fill(Mu_isGlobal,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,2)==1){histNGMuonIsTracker->Fill(Mu_isTracker,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,3)==1){histNGMuonChi2NDF->Fill(Mu_chi2ndf,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,4)==1){histNGMuonInnerD0->Fill(Mu_innerD0,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,5)==1){histNGMuonInnerDz->Fill(Mu_innerDz,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,6)==1){histNGMuonMuHits->Fill(Mu_muonHits,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,7)==1){histNGMuonMuStations->Fill(Mu_stations,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,8)==1){histNGMuonTrkLayers->Fill(Mu_trkLayers,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,9)==1){histNGMuonPixelHits->Fill(Mu_pixelHits,EventWeight);}
+	 //all other cuts except dxy and dz
+	 
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,10)==1){
+	   histNGMuonDxyDz->Fill(Mu_innerD0,Mu_innerDz,EventWeight);
+	   histNGMuonDR->Fill(TMath::Sqrt((Mu_innerD0*Mu_innerD0)+(Mu_innerDz*Mu_innerDz)),EventWeight);
+	 }
+	 
+	 //cuts not used in the analysis studied after applying all other cuts
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,0)==1){
+	   histNGMuonIsPF->Fill(Mu_isPF,EventWeight);
+	   histNGMuonIsSTA->Fill(Mu_isSTA,EventWeight);
+	   histNGMuonD0->Fill(Mu_D0,EventWeight);
+	   histNGMuonDz->Fill(Mu_Dz,EventWeight);
+	   histNGMuonInnerD0Err->Fill(Mu_innerD0Err,EventWeight);
+	   histNGMuonInnerDzErr->Fill(Mu_innerDzErr,EventWeight);
+	   histNGMuonInnerD0Norm->Fill(Mu_innerD0Norm,EventWeight);
+	   histNGMuonInnerDzNorm->Fill(Mu_innerDzNorm,EventWeight);
+	   histNGMuonPixelLayers->Fill(Mu_pixelLayers,EventWeight);
+	   histNGMuonTrkQuality->Fill(Mu_trkQuality,EventWeight);
+	 }
 	  
-	}
+       }
 
 
 
 
-	Int_t AllCuts =0;
+       Int_t AllCuts =0;
 	
-	//if(SoftMuonIDCuts(Mu_isGlobal,Mu_isTracker,Mu_isGood,Mu_pixelHits,Mu_trkLayers,Mu_D0,Mu_Dz)==1){AllCuts = 1;}else{AllCuts=0;}
-
-	//Tight muon ID cuts 
-	if(TightMuonIDCuts(Mu_isGlobal,Mu_isTracker,MuonEta,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits)==1){AllCuts = 1;}else{AllCuts=0;}
-	
-	//Tight muon ID cuts + MC matching
-	//if(TightMuonIDCuts(Mu_isGlobal,Mu_isTracker,MuonEta,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits)==1 && MCMatch==1){AllCuts = 1;}else{AllCuts=0;}
-		
-	//muon quality cuts
-	if(AllCuts==1){
-
-	  MuonsForJets.push_back(Muon);
-	  if(mu_chg->at(i)==1)PositiveMuons.push_back(Muon);
-	  if(mu_chg->at(i)==-1)NegativeMuons.push_back(Muon);
-	  	  
-	  histMuonPt->Fill(MuonPt,EventWeight);
-	  histMuonEta->Fill(MuonEta,EventWeight);
-	  histMuonPhi->Fill(MuonPhi,EventWeight);
-
-	  //Gen Muon matched reco muons (reco muon variables are filled)
-	  if(MCMatch==1)histMatchedMuonPt->Fill(MuonPt,EventWeight);
-	  if(MCMatch==1)histMatchedMuonEta->Fill(MuonEta,EventWeight);
-	  if(MCMatch==1)histMatchedMuonPhi->Fill(MuonPhi,EventWeight);
+       //if(SoftMuonIDCuts(Mu_isGlobal,Mu_isTracker,Mu_isGood,Mu_pixelHits,Mu_trkLayers,Mu_D0,Mu_Dz)==1){AllCuts = 1;}else{AllCuts=0;}
+       
+       //Tight muon ID cuts 
+       if(TightMuonIDCuts(Mu_isGlobal,Mu_isTracker,MuonEta,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits)==1){AllCuts = 1;}else{AllCuts=0;}
+       
+       //Tight muon ID cuts + MC matching
+       //if(TightMuonIDCuts(Mu_isGlobal,Mu_isTracker,MuonEta,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits)==1 && MCMatch==1){AllCuts = 1;}else{AllCuts=0;}
+       
+       //muon quality cuts
+       if(AllCuts==1){
+	 
+	 
+	 MuonsForJets.push_back(Muon);
+	 
+	 if(mu_chg->at(i)==1)PositiveMuons.push_back(Muon);
+	 if(mu_chg->at(i)==-1)NegativeMuons.push_back(Muon);
+	 
+	 histMuonPt->Fill(MuonPt,EventWeight);
+	 histMuonEta->Fill(MuonEta,EventWeight);
+	 histMuonPhi->Fill(MuonPhi,EventWeight);
+	 
+	 //Gen Muon matched reco muons (reco muon variables are filled)
+	 if(MCMatch==1)histMatchedMuonPt->Fill(MuonPt,EventWeight);
+	 if(MCMatch==1)histMatchedMuonEta->Fill(MuonEta,EventWeight);
+	 if(MCMatch==1)histMatchedMuonPhi->Fill(MuonPhi,EventWeight);
+	 
 	  
-	  
-	  // matched gen muon variables (here reco muons have quality cut applied)
-	  if(MCMatch ==1)histRecoMatchedGenMuonPt->Fill(genMuonMatched.Pt(),EventWeight);
-	  if(MCMatch ==1)histRecoMatchedGenMuonEta->Fill(genMuonMatched.Eta(),EventWeight);
-	  if(MCMatch ==1)histRecoMatchedGenMuonPhi->Fill(genMuonMatched.Phi(),EventWeight);
-
-
-
-
-	  
-	} //rec muon quality cuts
-      } // rec muon loop
+	 // matched gen muon variables (here reco muons have quality cut applied)
+	 if(MCMatch ==1)histRecoMatchedGenMuonPt->Fill(genMuonMatched.Pt(),EventWeight);
+	 if(MCMatch ==1)histRecoMatchedGenMuonEta->Fill(genMuonMatched.Eta(),EventWeight);
+	 if(MCMatch ==1)histRecoMatchedGenMuonPhi->Fill(genMuonMatched.Phi(),EventWeight);
+	 
+	 
+	 
+	 
+	 
+       } //rec muon quality cuts
+     } // rec muon loop
 
       //================= reconstructed dimuons ================//
       std::vector<TLorentzVector> DiMuons;
@@ -1723,7 +2007,11 @@ void JetAnalyzer::Loop()
       // is used
       const int NPFJETS = pf_jtpt->size();
       std::vector<TLorentzVector> AllMatchedMuons_DR04[NPFJETS];
+
       TLorentzVector MatchedMuon;
+
+      MyParticle MatchedMuonWithId;
+      
       
       histNumberOfJets->Fill(NPFJETS);
        
@@ -1782,7 +2070,6 @@ void JetAnalyzer::Loop()
 	Double_t MuonJetDR_Max = 0.4;
 
 	//loop over all the muons inside jet
-
 	for(unsigned long j=0; j<MuonsForJets.size();j++)
 	 {
 	   
@@ -1827,6 +2114,7 @@ void JetAnalyzer::Loop()
 	  histMuonJetPtTotal->Fill(JetPt,EventWeight);
 
 	  if(abs(PartonFlavour)==1 || abs(PartonFlavour)==2 ||abs(PartonFlavour)==3) histMuonJetPtLight->Fill(JetPt,EventWeight);
+
 	  if(abs(PartonFlavour)==1)histMuonJetPtUp->Fill(JetPt,EventWeight);
 	  if(abs(PartonFlavour)==2)histMuonJetPtDown->Fill(JetPt,EventWeight);
 	  if(abs(PartonFlavour)==3)histMuonJetPtStrange->Fill(JetPt,EventWeight);
@@ -1866,6 +2154,192 @@ void JetAnalyzer::Loop()
 	  if(JetCSVv2 < CSVv2WorkingPoint){histMuonPtRelCSVVeto->Fill(MuonJetPtRel,EventWeight);}  
 	  
 	}//muon Jet DR  (Tightest matched muons)
+
+	//=================================================================================================================================//
+	//================================== Here I want to fill muon quality cuts for the Muons which are matched to Jets ================//
+	//=================================== cat i ) Matched to Jet also have a matched gen muon =========================================//
+	//=================================== cat ii) Matched to Jet but dont have a matched gen muon =====================================//
+	//=================================================================================================================================//
+
+	int smallestDRindex2 =0;
+	double smallestDR2 = 1000.0;
+
+	for(unsigned long j=0; j< MuonsWithIdForJets.size();j++)
+	 {
+	   
+	   MyParticle  MuonWithID = MuonsWithIdForJets.at(j);
+
+	   Double_t MuonPt = MuonWithID.Pt();
+	   Double_t MuonEta = MuonWithID.Eta();
+	   Double_t MuonPhi = MuonWithID.Phi();
+	   Double_t MuonJetDR = getDR(MuonEta, MuonPhi, JetEta, JetPhi);
+	   
+	   if(MuonJetDR<smallestDR2)
+	     {
+	       smallestDR2 = MuonJetDR;
+	       smallestDRindex2=j;
+	     }
+	   
+	 } //MuonsWithIdForJet.size()
+
+
+	if( smallestDR < MuonJetDR_Max){
+
+	  MatchedMuonWithId = MuonsWithIdForJets.at(smallestDRindex);
+
+
+
+	  Int_t Mu_isGlobal = MatchedMuonWithId.GetParticle_isGlobal();
+	  Int_t Mu_isTracker = MatchedMuonWithId.GetParticle_isTracker();
+	  Int_t Mu_isPF = MatchedMuonWithId.GetParticle_isPF();
+	  Int_t Mu_isSTA = MatchedMuonWithId.GetParticle_isSTA();
+	  Int_t Mu_isGood = MatchedMuonWithId.GetParticle_isGood();
+	  Int_t Mu_pixelLayers = MatchedMuonWithId.GetParticle_pixelLayers();
+	  Int_t Mu_pixelHits = MatchedMuonWithId.GetParticle_pixelHits();
+	  Int_t Mu_trkLayers = MatchedMuonWithId.GetParticle_trkLayers();
+	  float Mu_D0 = MatchedMuonWithId.GetParticle_D0();
+	  float Mu_Dz = MatchedMuonWithId.GetParticle_Dz();
+	  float Mu_chi2ndf = MatchedMuonWithId.GetParticle_chi2ndf();
+	  float Mu_innerD0 =  MatchedMuonWithId.GetParticle_innerD0();
+	  float Mu_innerDz =  MatchedMuonWithId.GetParticle_innerDz();
+	  float Mu_muonHits = MatchedMuonWithId.GetParticle_muonHits();
+	  Int_t Mu_stations = MatchedMuonWithId.GetParticle_stations();
+	  //new quality cuts added for histos	
+	  float Mu_innerD0Err =  MatchedMuonWithId.GetParticle_innerD0Err();
+	  float Mu_innerDzErr =  MatchedMuonWithId.GetParticle_innerDzErr();
+	  float Mu_innerD0Norm =  MatchedMuonWithId.GetParticle_innerD0Norm();
+	  float Mu_innerDzNorm =  MatchedMuonWithId.GetParticle_innerDzNorm();
+	  Int_t Mu_trkQuality = MatchedMuonWithId.GetParticle_trkQuality();
+
+
+
+	  
+	  //=========== fill here histos with JetMatched muons which have a Gen Muon ====================//
+
+	  if(MatchedMuonWithId.GetParticle_MCMatch()==1){
+
+
+
+	 //cuts used in the analysis
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,1)==1){histJetMuonIsGlobal->Fill(Mu_isGlobal,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,2)==1){histJetMuonIsTracker->Fill(Mu_isTracker,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,3)==1){histJetMuonChi2NDF->Fill(Mu_chi2ndf,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,4)==1){histJetMuonInnerD0->Fill(Mu_innerD0,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,5)==1){histJetMuonInnerDz->Fill(Mu_innerDz,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,6)==1){histJetMuonMuHits->Fill(Mu_muonHits,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,7)==1){histJetMuonMuStations->Fill(Mu_stations,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,8)==1){histJetMuonTrkLayers->Fill(Mu_trkLayers,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,9)==1){histJetMuonPixelHits->Fill(Mu_pixelHits,EventWeight);}
+	 
+
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,10)==1){
+	   
+	   histJetMuonDxyDz->Fill(Mu_innerD0,Mu_innerDz,EventWeight);
+	   histJetMuonDR->Fill(TMath::Sqrt((Mu_innerD0*Mu_innerD0)+(Mu_innerDz*Mu_innerDz)),EventWeight);
+	 }
+
+
+
+	 //cuts not used in the analysis studied after applying all other cuts
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,0)==1){
+	   histJetMuonIsPF->Fill(Mu_isPF,EventWeight);
+	   histJetMuonIsSTA->Fill(Mu_isSTA,EventWeight);
+	   histJetMuonD0->Fill(Mu_D0,EventWeight);
+	   histJetMuonDz->Fill(Mu_Dz,EventWeight);
+	   histJetMuonInnerD0Err->Fill(Mu_innerD0Err,EventWeight);
+	   histJetMuonInnerDzErr->Fill(Mu_innerDzErr,EventWeight);
+	   histJetMuonInnerD0Norm->Fill(Mu_innerD0Norm,EventWeight);
+	   histJetMuonInnerDzNorm->Fill(Mu_innerDzNorm,EventWeight);
+	   histJetMuonPixelLayers->Fill(Mu_pixelLayers,EventWeight);
+	   histJetMuonTrkQuality->Fill(Mu_trkQuality,EventWeight);
+	 }
+
+
+	  }
+
+	  //=========== fill here histos with All JetMatched muons which dont have gen muon ==============//
+
+	  if(MatchedMuonWithId.GetParticle_MCMatch()==0){
+
+
+
+
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,1)==1){histNGJetMuonIsGlobal->Fill(Mu_isGlobal,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,2)==1){histNGJetMuonIsTracker->Fill(Mu_isTracker,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,3)==1){histNGJetMuonChi2NDF->Fill(Mu_chi2ndf,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,4)==1){histNGJetMuonInnerD0->Fill(Mu_innerD0,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,5)==1){histNGJetMuonInnerDz->Fill(Mu_innerDz,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,6)==1){histNGJetMuonMuHits->Fill(Mu_muonHits,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,7)==1){histNGJetMuonMuStations->Fill(Mu_stations,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,8)==1){histNGJetMuonTrkLayers->Fill(Mu_trkLayers,EventWeight);}
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,9)==1){histNGJetMuonPixelHits->Fill(Mu_pixelHits,EventWeight);}
+	 //all other cuts except dxy and dz
+	 
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,10)==1){
+	   histNGJetMuonDxyDz->Fill(Mu_innerD0,Mu_innerDz,EventWeight);
+	   histNGJetMuonDR->Fill(TMath::Sqrt((Mu_innerD0*Mu_innerD0)+(Mu_innerDz*Mu_innerDz)),EventWeight);
+	 }
+	 
+	 //cuts not used in the analysis studied after applying all other cuts
+	 if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,0)==1){
+	   histNGJetMuonIsPF->Fill(Mu_isPF,EventWeight);
+	   histNGJetMuonIsSTA->Fill(Mu_isSTA,EventWeight);
+	   histNGJetMuonD0->Fill(Mu_D0,EventWeight);
+	   histNGJetMuonDz->Fill(Mu_Dz,EventWeight);
+	   histNGJetMuonInnerD0Err->Fill(Mu_innerD0Err,EventWeight);
+	   histNGJetMuonInnerDzErr->Fill(Mu_innerDzErr,EventWeight);
+	   histNGJetMuonInnerD0Norm->Fill(Mu_innerD0Norm,EventWeight);
+	   histNGJetMuonInnerDzNorm->Fill(Mu_innerDzNorm,EventWeight);
+	   histNGJetMuonPixelLayers->Fill(Mu_pixelLayers,EventWeight);
+	   histNGJetMuonTrkQuality->Fill(Mu_trkQuality,EventWeight);
+	 }
+	 
+	    
+
+
+
+	  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	}
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	
       }//pf Jet Loop
@@ -3100,8 +3574,12 @@ void JetAnalyzer::Loop()
   histMuonMuHits->Write();
   histMuonTrkQuality->Write();
   histMuonMuStations->Write();
+  histMuonDxyDz->Write();
+  histMuonDR->Write();
 
 
+
+  
   histNGMuonIsGlobal->Write();
   histNGMuonIsTracker->Write();
   histNGMuonIsPF->Write();
@@ -3121,16 +3599,14 @@ void JetAnalyzer::Loop()
   histNGMuonMuHits->Write();
   histNGMuonTrkQuality->Write();
   histNGMuonMuStations->Write();
+  histNGMuonDxyDz->Write();
+  histNGMuonDR->Write();
 
 
 
 
 
-
-
-
-
-
+  
 
   histDiMuonInvMass->Write();
   histDiMuonInvMassLow->Write();
@@ -3200,6 +3676,62 @@ void JetAnalyzer::Loop()
    histMuonPtRel->Write();
    histMuonPtRelCSVTag->Write();
    histMuonPtRelCSVVeto->Write();
+
+
+
+
+  histJetMuonIsGlobal->Write();
+  histJetMuonIsTracker->Write();
+  histJetMuonIsPF->Write();
+  histJetMuonIsSTA->Write();
+  histJetMuonD0->Write();
+  histJetMuonDz->Write();
+  histJetMuonChi2NDF->Write();
+  histJetMuonInnerD0->Write();
+  histJetMuonInnerD0Err->Write();
+  histJetMuonInnerDz->Write();
+  histJetMuonInnerDzErr->Write();
+  histJetMuonInnerD0Norm->Write();
+  histJetMuonInnerDzNorm->Write();
+  histJetMuonTrkLayers->Write();
+  histJetMuonPixelLayers->Write();
+  histJetMuonPixelHits->Write();
+  histJetMuonMuHits->Write();
+  histJetMuonTrkQuality->Write();
+  histJetMuonMuStations->Write();
+  histJetMuonDxyDz->Write();
+  histJetMuonDR->Write();
+
+
+
+  
+  histNGJetMuonIsGlobal->Write();
+  histNGJetMuonIsTracker->Write();
+  histNGJetMuonIsPF->Write();
+  histNGJetMuonIsSTA->Write();
+  histNGJetMuonD0->Write();
+  histNGJetMuonDz->Write();
+  histNGJetMuonChi2NDF->Write();
+  histNGJetMuonInnerD0->Write();
+  histNGJetMuonInnerD0Err->Write();
+  histNGJetMuonInnerDz->Write();
+  histNGJetMuonInnerDzErr->Write();
+  histNGJetMuonInnerD0Norm->Write();
+  histNGJetMuonInnerDzNorm->Write();
+  histNGJetMuonTrkLayers->Write();
+  histNGJetMuonPixelLayers->Write();
+  histNGJetMuonPixelHits->Write();
+  histNGJetMuonMuHits->Write();
+  histNGJetMuonTrkQuality->Write();
+  histNGJetMuonMuStations->Write();
+  histNGJetMuonDxyDz->Write();
+  histNGJetMuonDR->Write();
+
+
+
+
+
+
 
    
    
@@ -3358,6 +3890,11 @@ Int_t TightMuonIDCuts_OtherThanStudied(Int_t isGlobal, Int_t isTracker, float mu
   if( (CutNumberStudied ==9) && (isGlobal==1 && isTracker==1 && (muChi2NDF != -99 && muChi2NDF < 10) && TMath::Abs(muInnerD0) < 0.2 && TMath::Abs(muInnerDz) < 0.5
 			  && muMuonHits > 0 && muStations > 1 && muTrkLayers > 5 )){SelectMuon =1;}
 
+
+  //CutNumberStudied = 10 : All Cut Applied except Dxy and Dz
+  if( (CutNumberStudied ==10) && (isGlobal==1 && isTracker==1 && (muChi2NDF != -99 && muChi2NDF < 10) && muMuonHits > 0 && muStations > 1
+				 && muTrkLayers > 5 && muPixelHits > 0)){SelectMuon =1;}
+  
   return SelectMuon;
 
 
@@ -3365,22 +3902,6 @@ Int_t TightMuonIDCuts_OtherThanStudied(Int_t isGlobal, Int_t isTracker, float mu
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /*
@@ -3451,6 +3972,18 @@ Double_t getPtRel(Double_t MuonPt, Double_t MuonEta, Double_t MuonPhi, Double_t 
 
   return (pTrel2 > 0) ? std::sqrt(pTrel2) : 0.0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

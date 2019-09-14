@@ -14,7 +14,7 @@
 
 // Header file for the classes stored in the TTree if any.
 #include <vector>
-
+#include "TLorentzVector.h"
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -708,4 +708,141 @@ Int_t JetAnalyzer::Cut(Long64_t entry)
 // returns -1 otherwise.
    return 1;
 }
+
+/*
+  class Rectangle {
+  int width, height;
+  public:
+  void set_values (int,int);
+  int area() {return width*height;}
+  };
+  
+  void Rectangle::set_values (int x, int y) {
+  width = x;
+  height = y;
+  }
+*/
+
+
+
+//class inhareted from TLorentz Vector
+class MyParticle : public TLorentzVector{
+
+private:
+  //add muon quality cuts as members of the class
+  Float_t mu_D0, mu_Dz, mu_chi2ndf, mu_innerD0, mu_innerDz, mu_muonHits, mu_innerD0Err, mu_innerDzErr, mu_innerD0Norm, mu_innerDzNorm;
+  Int_t mu_isGlobal, mu_isTracker, mu_isPF, mu_isSTA, mu_isGood, mu_pixelLayers, mu_pixelHits, mu_trkLayers, mu_stations, mu_trkQuality;
+
+  Int_t mu_hasGenMu =0;
+
+
+  
+public:
+
+  void SetParticle_IntQualityCuts(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t,Int_t,Int_t,Int_t,Int_t);
+  void SetParticle_FloatQualityCuts(Float_t,Float_t,Float_t,Float_t,Float_t,Float_t,Float_t,Float_t,Float_t,Float_t);
+  void SetParticle_MCMatch(Int_t);
+
+  
+  Int_t GetParticle_isGlobal(){return mu_isGlobal;}
+  Int_t GetParticle_isTracker(){return mu_isTracker;}
+  Int_t GetParticle_isPF(){return mu_isPF;}
+  Int_t GetParticle_isSTA(){return mu_isSTA;}
+  Int_t GetParticle_isGood(){return mu_isGood;}
+  
+  Int_t GetParticle_pixelLayers(){return mu_pixelLayers;}
+  Int_t GetParticle_pixelHits(){return mu_pixelHits;}
+  Int_t GetParticle_trkLayers(){return mu_trkLayers;}
+  Int_t GetParticle_stations(){return mu_stations;}
+  Int_t GetParticle_trkQuality(){return mu_trkQuality;}
+
+
+
+  Float_t GetParticle_D0(){return mu_D0;}
+  Float_t GetParticle_Dz(){return mu_Dz;}
+  Float_t GetParticle_chi2ndf(){return mu_chi2ndf;}
+  Float_t GetParticle_innerD0(){return mu_innerD0;}
+  Float_t GetParticle_innerDz(){return mu_innerDz;}
+  Float_t GetParticle_muonHits(){return mu_muonHits;}
+  
+  Float_t GetParticle_innerD0Err(){return mu_innerD0Err;}
+  Float_t GetParticle_innerDzErr(){return mu_innerDzErr;}
+
+  Float_t GetParticle_innerD0Norm(){return mu_innerD0Norm;}
+  Float_t GetParticle_innerDzNorm(){return mu_innerDzNorm;}
+
+  Int_t GetParticle_MCMatch(){return mu_hasGenMu;}
+
+  
+  //Double_t GetParticle_Pt(){return Pt;}
+  //Double_t GetParticle_Eta(){return Eta;}
+  //Double_t GetParticle_Phi(){return Phi;}
+
+};
+
+
+/*
+void MyParticle::SetParticle_Pt_Eta_Phi(Double_t pt, Double_t eta, Double_t phi){
+
+  Pt = pt;
+  Eta = eta;
+  Phi = phi;
+  
+}
+*/
+
+void MyParticle::SetParticle_IntQualityCuts(Int_t Mu_isGlobal, Int_t Mu_isTracker, Int_t Mu_isPF, Int_t Mu_isSTA, Int_t Mu_isGood, Int_t Mu_pixelLayers, Int_t Mu_pixelHits,
+					    Int_t Mu_trkLayers, Int_t Mu_stations, Int_t Mu_trkQuality){
+  mu_isGlobal=Mu_isGlobal;
+  mu_isTracker=Mu_isTracker;
+  mu_isPF=Mu_isPF;
+  mu_isSTA=Mu_isSTA;
+  mu_isGood=Mu_isGood;
+  mu_pixelLayers=Mu_pixelLayers;
+  mu_pixelHits=Mu_pixelHits;
+  mu_trkLayers=Mu_trkLayers;
+  mu_stations=Mu_stations;
+  mu_trkQuality=Mu_trkQuality;
+
+}
+
+
+
+
+
+
+
+
+//mu_D0, mu_Dz, mu_chi2ndf, mu_innerD0, mu_innerDz, mu_muonHits, mu_innerD0Err, mu_innerDzErr, mu_innerD0Norm, mu_innerDzNorm
+
+void MyParticle::SetParticle_FloatQualityCuts(Float_t Mu_D0, Float_t Mu_Dz, Float_t Mu_chi2ndf, Float_t Mu_innerD0, Float_t Mu_innerDz, Float_t Mu_muonHits,
+				  Float_t Mu_innerD0Err, Float_t Mu_innerDzErr, Float_t Mu_innerD0Norm, Float_t Mu_innerDzNorm)
+{
+  mu_D0 =Mu_D0;
+  mu_Dz=Mu_Dz;
+  mu_chi2ndf=Mu_chi2ndf;
+  mu_innerD0=Mu_innerD0;
+  mu_innerDz=Mu_innerDz;
+  mu_muonHits=Mu_muonHits;
+  mu_innerD0Err=Mu_innerD0Err;
+  mu_innerDzErr=Mu_innerDzErr;
+  mu_innerD0Norm=Mu_innerD0Norm;
+  mu_innerDzNorm=Mu_innerDzNorm;
+
+}
+
+void MyParticle::SetParticle_MCMatch(Int_t Mu_hasGenMu)
+{
+  mu_hasGenMu = Mu_hasGenMu;
+}
+
+
+
+
+
+
+
+
+
+
 #endif // #ifdef JetAnalyzer_cxx

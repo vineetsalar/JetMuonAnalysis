@@ -672,7 +672,7 @@ void MakeMuonIDVarStudy(TFile *file_in)
   //===================================================================================//
 
 
-  const int NIDCuts = 17;
+  const int NIDCuts = 18;
   TH1D *AMuIDCuts[NIDCuts];
   TH1D *ANGMuIDCuts[NIDCuts];
   
@@ -680,21 +680,23 @@ void MakeMuonIDVarStudy(TFile *file_in)
   const char NameMuIDCuts[NIDCuts][100]={"histMuonD0","histMuonDz","histMuonChi2NDF","histMuonInnerD0","histMuonInnerD0Err",
 					 "histMuonInnerDz","histMuonInnerDzErr","histMuonInnerD0Norm","histMuonInnerDzNorm",
 					 "histMuonTrkLayers","histMuonPixelLayers","histMuonPixelHits","histMuonMuHits",
-					 "histMuonTrkQuality","histMuonMuStations","histMuonIsGlobal","histMuonIsTracker"};
+					 "histMuonTrkQuality","histMuonMuStations","histMuonIsGlobal","histMuonIsTracker",
+					 "histMuonDR"};
 
 
   //Array of Histogram Names For Unmatched Muons
   const char NameNGMuIDCuts[NIDCuts][100]={"histNGMuonD0","histNGMuonDz","histNGMuonChi2NDF","histNGMuonInnerD0","histNGMuonInnerD0Err",
 					   "histNGMuonInnerDz","histNGMuonInnerDzErr","histNGMuonInnerD0Norm","histNGMuonInnerDzNorm",
 					   "histNGMuonTrkLayers","histNGMuonPixelLayers","histNGMuonPixelHits","histNGMuonMuHits",
-					   "histNGMuonTrkQuality","histNGMuonMuStations","histNGMuonIsGlobal","histNGMuonIsTracker"};
+					   "histNGMuonTrkQuality","histNGMuonMuStations","histNGMuonIsGlobal","histNGMuonIsTracker",
+					   "histNGMuonDR"};
 
 
   //Array of Names For saving the plots
   const char PlotNamesMuIDCuts[NIDCuts][100]={"MuonD0","MuonDz","MuonChi2NDF","MuonInnerD0","MuonInnerD0Err",
 					   "MuonInnerDz","MuonInnerDzErr","MuonInnerD0Norm","MuonInnerDzNorm",
 					   "MuonTrkLayers","MuonPixelLayers","MuonPixelHits","MuonMuHits",
-					      "MuonTrkQuality","MuonMuStations","isGlobal","isTracker"};
+					      "MuonTrkQuality","MuonMuStations","isGlobal","isTracker","MuonInnerDR"};
 
 
 
@@ -815,6 +817,11 @@ void MakeMuonIDVarStudy(TFile *file_in)
    MuIDCutValueMax[16]=1;
 
 
+   //MuIDCutValueMin[17]=0.005;
+   MuIDCutValueMin[17]=0.0;
+   MuIDCutValueMax[17]=0.3;
+
+
 
 
 
@@ -839,9 +846,15 @@ void MakeMuonIDVarStudy(TFile *file_in)
       AMuIDCuts[i]->SetMarkerStyle(20);
       AMuIDCuts[i]->SetMarkerColor(2);
       AMuIDCuts[i]->SetLineColor(2);
-    
-      cout<<"Getting histo NG"<<NameNGMuIDCuts[i]<<endl<<endl;
+      if(i==17)AMuIDCuts[i]->GetXaxis()->SetTitle("#sqrt{(d0)^{2}+(dz)^{2}}");
       
+      //cout<<" title "<<AMuIDCuts[i]->GetXaxis()->GetTitle()<<endl;
+ 
+
+      
+      cout<<"Getting histo NG"<<NameNGMuIDCuts[i]<<endl<<endl;
+
+            
       ANGMuIDCuts[i]=(TH1D*)file_in->Get(NameNGMuIDCuts[i]);
       //Scalling histograms with their intgrals
       MuPlotMethod->ScaleHistByItsIntegral(ANGMuIDCuts[i]);
@@ -913,22 +926,58 @@ void MakeMuonIDVarStudy(TFile *file_in)
       sprintf(LatexChar,"In Frac. %0.3f",Frac_NGMuID);
       if(i==9){tb->DrawLatex(0.18,0.65,LatexChar);}
       else{tb->DrawLatex(0.70,0.65,LatexChar);}
-      
+
       gPad->SaveAs(Form("Plots/MuonPlots/IDPlots/LogPlot_%s.pdf",PlotNamesMuIDCuts[i]));
       gPad->SaveAs(Form("Plots/MuonPlots/IDPlots/LogPlot_%s.png",PlotNamesMuIDCuts[i]));
-
-
-
-
-
-
-
-
-      
 
       
     }
 
+
+  TH2D *MuDxyDz =(TH2D*)file_in->Get("histMuonDxyDz");
+  MuDxyDz->GetXaxis()->SetTitle("Mu D0");
+  MuDxyDz->GetYaxis()->SetTitle("Mu Dz");
+
+  Double_t MuNorm = 1.0/MuDxyDz->Integral();
+  MuDxyDz->Scale(MuNorm);
+  
+  TH2D *NGMuDxyDz =(TH2D*)file_in->Get("histNGMuonDxyDz");
+  NGMuDxyDz->GetXaxis()->SetTitle("NGMu D0");
+  NGMuDxyDz->GetYaxis()->SetTitle("NGMu Dz");
+
+  Double_t NGMuNorm = 1.0/NGMuDxyDz->Integral();
+  NGMuDxyDz->Scale(NGMuNorm);
+
+
+
+  TH2D *Ratio_NGMuDxyDz_MuDxyDz = (TH2D*)NGMuDxyDz->Clone();
+  Ratio_NGMuDxyDz_MuDxyDz->Divide(MuDxyDz);
+
+  
+  //TCanvas *Canvas_MuDxyDz = new TCanvas("Canvas_MuDxyDz","Canvas_MuDxyDz",1200,400);
+  TCanvas *Canvas_MuDxyDz = new TCanvas("Canvas_MuDxyDz","Canvas_MuDxyDz",800,400);
+  Canvas_MuDxyDz->Divide(2,1);//coulmn x row
+  
+  
+  Canvas_MuDxyDz->cd(1);
+  gPad->SetRightMargin(0.12);
+  MuDxyDz->Draw("colz");
+  
+  Canvas_MuDxyDz->cd(2);
+  gPad->SetRightMargin(0.12);
+  NGMuDxyDz->Draw("colz");
+
+  //Canvas_MuDxyDz->cd(3);
+  //gPad->SetRightMargin(0.12);
+  //Ratio_NGMuDxyDz_MuDxyDz->Draw("colz");
+
+  Canvas_MuDxyDz->SaveAs("Plots/MuonPlots/IDPlots/MuDxyDz.pdf");
+  Canvas_MuDxyDz->SaveAs("Plots/MuonPlots/IDPlots/MuDxyDz.png");
+
+
+
+
+  
 
 
 
