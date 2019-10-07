@@ -921,7 +921,7 @@ void MakeCSVTagPlots(TFile *file_in,TFile *file_out)
   //int highLimits[3] = {0};
   
   //project this to get the muon pt relative distribution
-  Int_t nRestrictionAxes = 3; // restricted axes are CSV, 
+  Int_t nRestrictionAxes = 3; // restricted axes are CSV, Flavour and MuonPt 
   Int_t axisIndices[3]={0,2,3}; //0 CSV, 1 pt rel, 2 Flavour, 3 muon pt
   Double_t lowLimits[3]={0.0,1,5.0}; // low limit for CSV, Flavour, MuonPt
   Double_t highLimits[3]={1.2,6,100.0}; // high limit for CSV, Flavour, MuonPt

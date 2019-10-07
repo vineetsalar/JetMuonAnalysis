@@ -446,11 +446,37 @@ public :
   //3.Flavour
   //4.MuonPt (may be we need to do it to 150)?
   static const Int_t NDimension = 4;
-  const Int_t NBins[NDimension]={100,40,9,100};  
-  const Double_t xmin[NDimension]={0.0,0.0,0.5,0.0};
-  const Double_t xmax[NDimension]={1.2,4.0,9.5,100.0};
+  const Int_t NBins[NDimension]={NBinsJetCSV,NBinsMuonPtRel,NFlavour,NBinsMuPt};  
+  const Double_t xmin[NDimension]={JetCSVMin,MuonPtRelMin,FlavourMin,MuPtMin};
+  const Double_t xmax[NDimension]={JetCSVMax,MuonPtRelMax,FlavourMax,MuPtMax};
+
   //an array to fill the 4D histogram
   Double_t Fill_hsparse_Master_JetCSV_MuPtRel_Flavour_MuPt[NDimension];
+
+
+  //Define a hsparse for JetPt, MuPt, Flv, MuChi2Ndf, MuDR, MuMCMatch
+  static const Int_t NDimension_MuID = 6;
+
+  //number of bins and min max for muon chi2/ndf
+  const Int_t NBinsMuonChi2NDF = 100;
+  Double_t MuonChi2NDFMin = 0.0;
+  Double_t MuonChi2NDFMax = 20.0;
+
+  //number of bins and min max for muon (dxy^2 + dz^2)^{1/2}
+  const Int_t NBinsMuonDR    = 200;
+  Double_t MuonDRMin = 0.0;
+  Double_t MuonDRMax =  1.0;
+  
+  //number of bins and min max for muon-genmuon match
+  const Int_t NBinsMuonMCMatch    = 5;
+  Double_t MuonMCMatchMin = -0.5;
+  Double_t MuonMCMatchMax =  4.5;
+  
+  
+  const Int_t NBins_MuID[NDimension_MuID]={NBinsJetPt,NBinsMuPt,NFlavour,NBinsMuonChi2NDF,NBinsMuonDR,NBinsMuonMCMatch};  
+  const Double_t xmin_MuID[NDimension_MuID]={JetPtMin,MuPtMin,FlavourMin,MuonChi2NDFMin,MuonDRMin,MuonMCMatchMin};
+  const Double_t xmax_MuID[NDimension_MuID]={JetPtMax,MuPtMax,FlavourMax,MuonChi2NDFMax,MuonDRMax,MuonMCMatchMax};
+  Double_t Fill_hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch[NDimension_MuID];
 
 
   //bins for histo with all muons inside the Jet
@@ -547,6 +573,14 @@ public :
   TH3D *hist_Master_JetPt_MuPt_Flavour;
   TH3D *hist_Master_JetPt_MuPtRel_Flavour;
 
+  //this will be use to see the effect of
+  //mu ID cuts on Jet Fractions 
+  TH3D *hist_Master_JetPt_MuPt_Flavour_ModCuts;
+
+
+
+
+  
   
 
   TH1D *histJetCSV;
@@ -565,6 +599,15 @@ public :
   //CSV veto histograms with different muon pT cuts
   THnSparseD *hsparse_Master_JetCSV_MuPtRel_Flavour_MuPt;
 
+
+  //6D histo JetPt, MuPt, JetFlv, MuChi2NDF, MuDR( (d0^2+dz^2)^{1/2}) and Mu-GenMu MC Match
+  //Idea is to check the effect of these ID cuts on Jet Fractions
+  THnSparseD *hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch;
+
+  
+
+
+  
   //reconstructed muon histograms
   //All the muons matched to Jet
   TH3D *hist_Master_MuEta_MuPt_MuPhi;
@@ -1066,6 +1109,14 @@ void JetAnalyzer::InitHist()
   hist_Master_JetPt_MuPtRel_Flavour->GetYaxis()->SetTitle(" #mu p_{T}-Rel (GeV/c)");
   hist_Master_JetPt_MuPtRel_Flavour->GetZaxis()->SetTitle("Jet Flavour");
   
+
+
+  hist_Master_JetPt_MuPt_Flavour_ModCuts = new TH3D("hist_Master_JetPt_MuPt_Flavour_ModCuts","hist_Master_JetPt_MuPt_Flavour_ModCuts",NBinsJetPt,JetPtMin,JetPtMax,NBinsMuPt,MuPtMin,MuPtMax, NFlavour,FlavourMin,FlavourMax);
+  hist_Master_JetPt_MuPt_Flavour_ModCuts->GetXaxis()->SetTitle(" Jet p_{T} (GeV/c)");
+  hist_Master_JetPt_MuPt_Flavour_ModCuts->GetYaxis()->SetTitle(" #mu p_{T} (GeV/c)");
+  hist_Master_JetPt_MuPt_Flavour_ModCuts->GetZaxis()->SetTitle("Jet Flavour");
+
+
   
   
   /**********************************************************************************************************************/
@@ -1133,8 +1184,18 @@ void JetAnalyzer::InitHist()
   hsparse_Master_JetCSV_MuPtRel_Flavour_MuPt->GetAxis(1)->SetTitle("#mu p_{T}-Rel (GeV/c)");
   hsparse_Master_JetCSV_MuPtRel_Flavour_MuPt->GetAxis(2)->SetTitle("Jet Flavour");
   hsparse_Master_JetCSV_MuPtRel_Flavour_MuPt->GetAxis(3)->SetTitle("#mu p_{T} (GeV/c)");
-  
 
+
+
+  hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch = new THnSparseD("hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch","hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch",NDimension_MuID, NBins_MuID, xmin_MuID, xmax_MuID);
+  hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch->GetAxis(0)->SetTitle("Jet p_{T} (GeV/c)");
+  hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch->GetAxis(1)->SetTitle("#mu  p_{T} (GeV/c)");
+  hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch->GetAxis(2)->SetTitle("Jet Flavour");
+  hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch->GetAxis(3)->SetTitle("#mu #chi^{2}/NDF");
+  hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch->GetAxis(4)->SetTitle("#mu #sqrt{(d0)^2+(dz)^2)}");
+  hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch->GetAxis(5)->SetTitle("#mu-Gen #mu Match");
+
+  
   //===========================================================================//
   //========================== reco muon histos ===============================//
   //===========================================================================//
@@ -1430,9 +1491,6 @@ void JetAnalyzer::InitMuIDHist()
   
   //Muon Dxy-Dz 2D Histo 
 
-  const Int_t NBinsMuonDR    = 200;
-  Double_t MuonDRMin = 0.0;
-  Double_t MuonDRMax =  1.0;
  
   histMuonDR = new TH1D("histMuonDR","histMuonDR",NBinsMuonDR,MuonDRMin,MuonDRMax);
   histMuonDR->GetXaxis()->SetTitle("Muon DR");
@@ -1446,9 +1504,6 @@ void JetAnalyzer::InitMuIDHist()
   
   
   //7.mu_chi2ndf
-  const Int_t NBinsMuonChi2NDF    = 100;
-  Double_t MuonChi2NDFMin = 0.0;
-  Double_t MuonChi2NDFMax = 20.0;
   histMuonChi2NDF = new TH1D("histMuonChi2NDF","histMuonChi2NDF",NBinsMuonChi2NDF,MuonChi2NDFMin,MuonChi2NDFMax);
   histMuonChi2NDF->GetXaxis()->SetTitle("Muon Chi2NDF");
   histMuonChi2NDF->GetYaxis()->SetTitle("Entries");
@@ -2207,15 +2262,9 @@ class MyParticle : public TLorentzVector{
 
 private:
   //add muon quality cuts as members of the class
-
-
   Int_t fMu_isGlobal, fMu_isTracker, fMu_isPF, fMu_isSTA, fMu_isGood, fMu_pixelLayers, fMu_pixelHits, fMu_trkLayers, fMu_stations, fMu_trkQuality;
   Float_t fMu_D0, fMu_Dz, fMu_chi2ndf, fMu_innerD0, fMu_innerDz, fMu_muonHits, fMu_innerD0Err, fMu_innerDzErr, fMu_innerD0Norm, fMu_innerDzNorm;
   Int_t fMu_hasGenMu;
-
-
-
-  
   
 public:
   //constructer

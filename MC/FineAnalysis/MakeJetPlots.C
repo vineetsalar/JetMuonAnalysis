@@ -124,7 +124,7 @@ void MakeRecJetPlots(TFile *file_in, TFile *file_out, Double_t RecJetPtMin);
 void MakeCSVTagPlots(TFile *file_in,TFile *file_out);
 void MakeMuonPlots(TFile *file_in);
 void MakeMuonIDVarStudy(TFile *file_in);
-
+void MakeJetMuonIDVarStudy(TFile *file_in);
 
 void MakeJetPlots()
 {
@@ -202,7 +202,14 @@ void MakeJetPlots()
   // Muon+Jet trigger applied : HLT_HIL3Mu5_AK4PFJet30_v1
   //TFile *file_in =  new TFile("InRootFiles/JetAnalyzerOutPut_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeVEta24_TighestMuon_RefPartonFlvForB_TriggerApplied_10Sep19_All.root","R");
   //This file should have EventHistos + Muon DR Histo + 2D DxyDz histo
-  TFile *file_in =  new TFile("InRootFiles/JetAnalyzerOutPut_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeVEta24_TighestMuon_RefPartonFlvForB_TriggerApplied_12Sep19_All.root","R");
+  //TFile *file_in =  new TFile("InRootFiles/JetAnalyzerOutPut_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeVEta24_TighestMuon_RefPartonFlvForB_TriggerApplied_12Sep19_All.root","R");
+  //This file should have quality cut histograms added for the Jet Muons
+  //TFile *file_in =  new TFile("InRootFiles/JetAnalyzerOutPut_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeVEta24_TighestMuon_RefPartonFlvForB_TriggerApplied_17Sep19_All.root","R");
+
+  
+  //This file should have added 3D histo with additional cut i) chi2/ndf < 2 and ii) 0.005 < Muon_DR < 0.3
+  //also have a 6D sparse to study the dependence of fractions on muon ID cuts
+  TFile *file_in =  new TFile("InRootFiles/JetAnalyzerOutPut_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeVEta24_TighestMuon_RefPartonFlvForB_TriggerApplied_18Sep19_All.root","R");
 
   //3. Should check the effect of mu |eta| < 1.4 (with trigger applied)
   // Muon+Jet trigger applied : HLT_HIL3Mu5_AK4PFJet30_v1
@@ -229,10 +236,11 @@ void MakeJetPlots()
   TFile *OutFile = new TFile("JetPlotOutPut_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeVEta14_TighestMuon_RefPartonFlvForB_TriggerApplied_11Sep19_All.root","RECREATE");
 
   //MakeEventHistos(file_in, OutFile);
-  //MakeGenJetPlots(file_in, GenJetPtMin, GenMuPtCut);
+  MakeGenJetPlots(file_in, GenJetPtMin, GenMuPtCut);
   //MakeRecJetPlots(file_in, OutFile, RecJetPtMin);
   //MakeMuonPlots(file_in);
-  MakeMuonIDVarStudy(file_in);
+  //MakeMuonIDVarStudy(file_in);
+  //MakeJetMuonIDVarStudy(file_in);
   //MakeCSVTagPlots(file_in, OutFile);
 
   //OutFile->Write();

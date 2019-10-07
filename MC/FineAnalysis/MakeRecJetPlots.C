@@ -681,7 +681,14 @@ void MakeRecJetPlots(TFile *file_in, TFile *file_out, Double_t RecJetPtMin)
   cout<<endl<<endl<<endl;
   
   // Get the 3D histo of Jet Pt, Muon Pt and Flavour
-  TH3D *hist_Master_JetPt_MuPt_Flavour=(TH3D*)file_in->Get("hist_Master_JetPt_MuPt_Flavour");
+  //TH3D *hist_Master_JetPt_MuPt_Flavour=(TH3D*)file_in->Get("hist_Master_JetPt_MuPt_Flavour");
+  //take a clone to use for muon probability
+  //TH3D *hist_Clone_JetPt_MuPt_Flavour=(TH3D*)hist_Master_JetPt_MuPt_Flavour->Clone();
+
+
+  //Jet Histo with modifing cuts this is for the test
+  // Get the 3D histo of Jet Pt, Muon Pt and Flavour
+  TH3D *hist_Master_JetPt_MuPt_Flavour=(TH3D*)file_in->Get("hist_Master_JetPt_MuPt_Flavour_ModCuts");
   //take a clone to use for muon probability
   TH3D *hist_Clone_JetPt_MuPt_Flavour=(TH3D*)hist_Master_JetPt_MuPt_Flavour->Clone();
   
@@ -860,7 +867,10 @@ void MakeRecJetPlots(TFile *file_in, TFile *file_out, Double_t RecJetPtMin)
     
     
     TH1 *hist_Master_JetPt_MuPt_Flavour_ProjZ = hist_Master_JetPt_MuPt_Flavour->ProjectionZ(Form("hist_Master_JetPt_MuPt_Flavour_ProjZ_%d",i),JetPtBinMin,JetPtBinMax,MuonPtBinMin,MuonPtBinMax);
-    
+
+    //overflow and underflow both considered here
+    //also there are nine flavours so in denomenator there are nine flv.
+    // in numerator only six are used to get the ratios
     const Double_t  Master_JetPt_MuPt_Flavour_IntegralZ = hist_Master_JetPt_MuPt_Flavour_ProjZ->Integral(0,hist_Master_JetPt_MuPt_Flavour_ProjZ->GetNbinsX()+1);
 
     MuPtCut_Inclusive_Integral[i] = Master_JetPt_MuPt_Flavour_IntegralZ;
@@ -896,7 +906,7 @@ void MakeRecJetPlots(TFile *file_in, TFile *file_out, Double_t RecJetPtMin)
 				      MuPtCut_Flavour_Fraction[i][4],MuPtCut_Flavour_Fraction[i][5],MuPtCut_Flavour_Fraction[i][6]};
     
     graph_MuonPtCut_JetFrac[i] = new TGraph (NFlvLocal, MuonJetType, t_MuonJetFrac);
-     graph_MuonPtCut_JetFrac[i]->SetFillColorAlpha(kRed,0.6);
+    graph_MuonPtCut_JetFrac[i]->SetFillColorAlpha(kRed,0.6);
 
 
      //cout<<MuPtCut_Flavour_Integral[i][1]<<"  "<<MuPtCut_Flavour_Integral[i][2]<<"  "<<MuPtCut_Flavour_Integral[i][3]<<"  "<<MuPtCut_Flavour_Integral[i][4]<<"  "<<
@@ -1110,13 +1120,6 @@ void MakeRecJetPlots(TFile *file_in, TFile *file_out, Double_t RecJetPtMin)
   TH1 *hist_MuPt_WithJets_Un = hist_Clone_JetPt_MuPt_Flavour->ProjectionY("hist_MuPt_WithJets_Un",JetPtBinMin,JetPtBinMax,FlavourBinMinForUn,FlavourBinMaxForUn);
   TH1 *hist_MuPt_WithJets_Ze = hist_Clone_JetPt_MuPt_Flavour->ProjectionY("hist_MuPt_WithJets_Ze",JetPtBinMin,JetPtBinMax,FlavourBinMinForZe,FlavourBinMaxForZe);
 
-
-
-
-
-
-
-  
   //========== Asymmatic Re Binning muon pT with  jets ================================//
   
   //RecJetMethod->rebinAsymmetric(hist_MuonPt, NBins_MuonPt_VarSize-1, MuonPtBinEdges);
@@ -1154,9 +1157,6 @@ void MakeRecJetPlots(TFile *file_in, TFile *file_out, Double_t RecJetPtMin)
   TH1D *hist_MuonRatio_Un = RecJetMethod->RatioHistogram(hist_MuPt_WithJets_Un,hist_MuonPt,1);
   TH1D *hist_MuonRatio_Ze = RecJetMethod->RatioHistogram(hist_MuPt_WithJets_Ze,hist_MuonPt,1);
 
-
-  
-
   RecJetMethod->FlavouredHistogram(hist_MuonRatio_Inclusive, RecJetMethod->LineColorArray[6], RecJetMethod->MarkerColorArray[6], 20,RecJetMethod->MarkerSizeArray[1]);
   RecJetMethod->FlavouredHistogram(hist_MuonRatio_U, RecJetMethod->LineColorArray[1], RecJetMethod->MarkerColorArray[1], RecJetMethod->MarkerStyleArray[1],RecJetMethod->MarkerSizeArray[1]);
   RecJetMethod->FlavouredHistogram(hist_MuonRatio_D, RecJetMethod->LineColorArray[2], RecJetMethod->MarkerColorArray[2], RecJetMethod->MarkerStyleArray[2],RecJetMethod->MarkerSizeArray[2]);
@@ -1179,59 +1179,12 @@ void MakeRecJetPlots(TFile *file_in, TFile *file_out, Double_t RecJetPtMin)
   hist_MuonRatio_Un->GetYaxis()->SetTitle(" #mu in  Jets (-999)/ all  #mu");
   hist_MuonRatio_Ze->GetYaxis()->SetTitle(" #mu in  Jets (0)/ all  #mu");
 
-
-
-
   
   //making arry for muon probability numrator to draw them in a loop
   TH1 *Array_hist_MuonRatioNum[7]={hist_MuPt_WithJets_Inclusive,hist_MuPt_WithJets_U,hist_MuPt_WithJets_D,hist_MuPt_WithJets_S,hist_MuPt_WithJets_C,hist_MuPt_WithJets_B,hist_MuPt_WithJets_G};
   //making arry for muon probability histograms to draw them in a loop
   TH1D *Array_hist_MuonRatio[7]={hist_MuonRatio_Inclusive,hist_MuonRatio_U,hist_MuonRatio_D,hist_MuonRatio_S,hist_MuonRatio_C,hist_MuonRatio_B,hist_MuonRatio_G};
 
-  
-  
-  //for(int i =0;i<NMuonPtCut;i++){
-       
-    //Double_t Num_MuonFractionInclusive = hist_MuPt_WithJets_Inclusive->Integral(hist_MuPt_WithJets_Inclusive->GetXaxis()->FindBin(MuonPtCut[i]),hist_MuPt_WithJets_Inclusive->GetXaxis()->GetNbins()+1);
-    //Double_t Num_MuonFraction_U = hist_MuPt_WithJets_U->Integral(hist_MuPt_WithJets_U->GetXaxis()->FindBin(MuonPtCut[i]),hist_MuPt_WithJets_U->GetXaxis()->GetNbins()+1);
-    //Double_t Num_MuonFraction_D = hist_MuPt_WithJets_D->Integral(hist_MuPt_WithJets_D->GetXaxis()->FindBin(MuonPtCut[i]),hist_MuPt_WithJets_D->GetXaxis()->GetNbins()+1);
-    //Double_t Num_MuonFraction_S = hist_MuPt_WithJets_S->Integral(hist_MuPt_WithJets_S->GetXaxis()->FindBin(MuonPtCut[i]),hist_MuPt_WithJets_S->GetXaxis()->GetNbins()+1);
-    //Double_t Num_MuonFraction_C = hist_MuPt_WithJets_C->Integral(hist_MuPt_WithJets_C->GetXaxis()->FindBin(MuonPtCut[i]),hist_MuPt_WithJets_C->GetXaxis()->GetNbins()+1);
-    //Double_t Num_MuonFraction_B = hist_MuPt_WithJets_B->Integral(hist_MuPt_WithJets_B->GetXaxis()->FindBin(MuonPtCut[i]),hist_MuPt_WithJets_B->GetXaxis()->GetNbins()+1);
-    //Double_t Num_MuonFraction_G = hist_MuPt_WithJets_G->Integral(hist_MuPt_WithJets_G->GetXaxis()->FindBin(MuonPtCut[i]),hist_MuPt_WithJets_G->GetXaxis()->GetNbins()+1);
-    //Double_t Num_MuonFraction_Un = hist_MuPt_WithJets_Un->Integral(hist_MuPt_WithJets_Un->GetXaxis()->FindBin(MuonPtCut[i]),hist_MuPt_WithJets_Un->GetXaxis()->GetNbins()+1);
-    //Double_t Num_MuonFraction_Ze = hist_MuPt_WithJets_Ze->Integral(hist_MuPt_WithJets_Ze->GetXaxis()->FindBin(MuonPtCut[i]),hist_MuPt_WithJets_Ze->GetXaxis()->GetNbins()+1);
-    ////Double_t Num_MuonFraction_NR = hist_MuPt_WithJets_NR->Integral(hist_MuPt_WithJets_NR->GetXaxis()->FindBin(MuonPtCut[i]),hist_MuPt_WithJets_NR->GetXaxis()->GetNbins()+1);
-    
-    
-    
-    //Double_t Deno_MuonFraction =     hist_MuonPt->Integral(hist_MuonPt->GetXaxis()->FindBin(MuonPtCut[i]),hist_MuonPt->GetXaxis()->GetNbins()+1);
-       
-       
-
-    //Double_t MuonFractionInclusive =  Num_MuonFractionInclusive/Deno_MuonFraction;
-       
-    //Double_t MuonFraction_U =  Num_MuonFraction_U/Deno_MuonFraction;
-    //Double_t MuonFraction_D =  Num_MuonFraction_D/Deno_MuonFraction;
-    //Double_t MuonFraction_S =  Num_MuonFraction_S/Deno_MuonFraction;
-    //Double_t MuonFraction_C =  Num_MuonFraction_C/Deno_MuonFraction;
-    //Double_t MuonFraction_B =  Num_MuonFraction_B/Deno_MuonFraction;
-    //Double_t MuonFraction_G =  Num_MuonFraction_G/Deno_MuonFraction;
-    
-    //Double_t MuonFraction_Un =  Num_MuonFraction_Un/Deno_MuonFraction;
-    //Double_t MuonFraction_Ze =  Num_MuonFraction_Ze/Deno_MuonFraction;
-    
-    //MuPtCut_Flavour_MuonFraction[i][0]=MuonFractionInclusive;
-    //MuPtCut_Flavour_MuonFraction[i][1]=MuonFraction_U;
-    //MuPtCut_Flavour_MuonFraction[i][2]=MuonFraction_D;
-    //MuPtCut_Flavour_MuonFraction[i][3]=MuonFraction_S;
-    //MuPtCut_Flavour_MuonFraction[i][4]=MuonFraction_C;
-    //MuPtCut_Flavour_MuonFraction[i][5]=MuonFraction_B;
-    //MuPtCut_Flavour_MuonFraction[i][6]=MuonFraction_G;
-  //}
-   
-
-  
   //Canvas muon probability coming with jets 
   TCanvas *CanvasRecMuonProbFlavour = new TCanvas("CanvasRecMuonProbFlavour","CanvasRecMuonProbFlavour",1800,1800);
   CanvasRecMuonProbFlavour->Divide(4,2);
@@ -1291,10 +1244,162 @@ void MakeRecJetPlots(TFile *file_in, TFile *file_out, Double_t RecJetPtMin)
  CanvasRecMuonProbNum->SaveAs("Plots/PFJets/MuonsInJetPtDiss_AllFlavour.png");
  CanvasRecMuonProbNum->SaveAs("Plots/PFJets/MuonsInJetPtDiss_AllFlavour.pdf");
 
+ //===============================================================================//
+ //=================== Jet Fractions from Sparse =================================//
+ //===============================================================================//
 
-  char OutTexFile[1000];
-  sprintf(OutTexFile,"OutTexFile/RecTable/RecJetTable.tex");
-  ofstream dataFile(Form("%s",OutTexFile));
+ //                          0      1         2           3         4        5
+ //Get the 6D Histogram of JetPt, Muon Pt, Jet Flavour, MuonChi2, MuonDR, MuMCMatch 
+ THnSparseD *hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch=(THnSparseD*)file_in->Get("hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch");
+ 
+ // Define arrays to help find the histograms
+ //int nRestrictionAxes = 3;
+ //int axisIndices[3] = {0};
+ //int lowLimits[3] = {0};
+ //int highLimits[3] = {0};
+ 
+ //case 1 For the comparison
+ // put a cut of chi2NDF < 2 and 0.005 < DR < 0.3 
+
+
+ // 0      1         2           3         4        5
+ //JetPt, Muon Pt, Jet Flavour, MuonChi2, MuonDR, MuMCMatch
+ const Int_t wantAxis =2; 
+ const Int_t nRestrictionAxes = 5; //5 axises restricted except the JetPt 
+
+ Int_t axisIndices[5]={1,2,3,4,5}; //1 for MuonPt, 2 for JetFlavour etc.
+
+ Double_t lowLimits[5]={0.0,    0.0,  0.0,  0.0, 0.0}; // low limit for Muon Pt, Jet Flavour, MuonChi2, MuonDR, MuMCMatch
+ Double_t highLimits[5]={150.0, 6.0,  20.0, 1.0, 5.0}; // high limit for Muon Pt, Jet Flavour, MuonChi2, MuonDR, MuMCMatch
+
+ const Int_t NCutStep = 10;
+ Double_t Chi2NDFValues[NCutStep]={1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0};
+ 
+ Double_t DRValues[NCutStep]={0.005,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09};
+
+ Double_t SgfCharm[NCutStep]={0.0};
+ Double_t SgfBeauty[NCutStep]={0.0};
+
+
+ TH1D* hist_JetPt_Inclusive_FromSparse[NCutStep]; // histogram for inclusive
+ TH1D* hist_JetPt_Light_FromSparse[NCutStep]; // histogram for Light
+ TH1D* hist_JetPt_Charm_FromSparse[NCutStep]; // histogram for Charm
+ TH1D* hist_JetPt_Beauty_FromSparse[NCutStep]; // histogram for Beauty
+ TH1D* hist_JetPt_Gluon_FromSparse[NCutStep]; // histogram for Gluon
+
+
+ for(int i=0;i<NCutStep;i++){
+   //It will put a cut on Chi2NDF
+   lowLimits[2]=0.0; highLimits[2] = Chi2NDFValues[i];
+
+   //Jet Flv limits inclusive
+   lowLimits[1]=0.0; highLimits[1] = 6;
+   hist_JetPt_Inclusive_FromSparse[i] = RecJetMethod->FindHistogram(file_in,"hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch",wantAxis, nRestrictionAxes,axisIndices,lowLimits,highLimits);
+
+   //Jet Flv limits Light
+   lowLimits[1]=1.0; highLimits[1] = 3.0;
+   hist_JetPt_Light_FromSparse[i] = RecJetMethod->FindHistogram(file_in,"hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch",wantAxis, nRestrictionAxes,axisIndices,lowLimits,highLimits);
+
+   //Jet Flv limits Charm
+   lowLimits[1]=4.0; highLimits[1] = 4.0;
+   hist_JetPt_Charm_FromSparse[i] = RecJetMethod->FindHistogram(file_in,"hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch",wantAxis, nRestrictionAxes,axisIndices,lowLimits,highLimits);
+
+   //Jet Flv limits Beauty
+   lowLimits[1]=5.0; highLimits[1] = 5.0;
+   hist_JetPt_Beauty_FromSparse[i] = RecJetMethod->FindHistogram(file_in,"hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch",wantAxis, nRestrictionAxes,axisIndices,lowLimits,highLimits);
+
+   //Jet Flv limits Gluon
+   lowLimits[1]=6.0; highLimits[1] = 6.0;
+   hist_JetPt_Gluon_FromSparse[i] = RecJetMethod->FindHistogram(file_in,"hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch",wantAxis, nRestrictionAxes,axisIndices,lowLimits,highLimits);
+
+   Double_t Signal_Charm = hist_JetPt_Charm_FromSparse[i]->Integral();
+   Double_t Signal_Beauty = hist_JetPt_Beauty_FromSparse[i]->Integral();
+   Double_t Background = hist_JetPt_Light_FromSparse[i]->Integral() + hist_JetPt_Gluon_FromSparse[i]->Integral();
+
+   //Double_t Background = hist_JetPt_Gluon_FromSparse[i]->Integral();
+
+   
+   SgfCharm[i] = Signal_Charm/TMath::Sqrt(Background);
+   SgfBeauty[i] = Signal_Beauty/TMath::Sqrt(Background);
+
+
+   //calculate significance for the dR values
+   //Set all restrictions on sparse to default values 
+   lowLimits[0]=0.0; highLimits[0] = 150.0; //Muon Pt
+   lowLimits[1]=0.0; highLimits[1] = 6.0; //Jet Flavour, 
+   lowLimits[2]=0.0; highLimits[2] = 20.0; //MuonChi2, 
+   lowLimits[3]=0.0; highLimits[3] = 1.0;//MuonDR, 
+   lowLimits[4]=0.0; highLimits[4] = 5.0;//MuMCMatch
+
+
+
+
+   
+   
+
+ }
+
+
+ TGraph *graph_Sgf_Charm_MuChi2NDF = new TGraph(NCutStep,Chi2NDFValues,SgfCharm);
+ graph_Sgf_Charm_MuChi2NDF->GetXaxis()->SetTitle("#chi^{2}/NDF");
+ graph_Sgf_Charm_MuChi2NDF->GetYaxis()->SetTitle("c/#sqrt{u+d+s+g}");
+
+ new TCanvas;
+ graph_Sgf_Charm_MuChi2NDF->Draw("APL");
+ 
+ TGraph *graph_Sgf_Beauty_MuChi2NDF = new TGraph(NCutStep,Chi2NDFValues,SgfBeauty);
+ graph_Sgf_Beauty_MuChi2NDF->GetXaxis()->SetTitle("#chi^{2}/NDF");
+ graph_Sgf_Beauty_MuChi2NDF->GetYaxis()->SetTitle("b/#sqrt{u+d+s+g}");
+ 
+ new TCanvas;
+ graph_Sgf_Beauty_MuChi2NDF->Draw("APL");
+
+
+
+
+
+
+
+ 
+
+ /*
+   for(int i=0;i<NCutStep;i++){
+   new TCanvas;
+   gPad->SetLogy(1);
+   hist_JetPt_Inclusive_FromSparse[i]->Draw("P");
+   cout<<endl;
+   cout<< " integral from 3D histo "<< MuPtCut_Inclusive_Integral[0] <<" integral from sparse "<<hist_JetPt_Inclusive_FromSparse[i]->Integral(1,hist_JetPt_Inclusive_FromSparse[i]->GetNbinsX())<<endl;
+   }
+ */
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ char OutTexFile[1000];
+ sprintf(OutTexFile,"OutTexFile/RecTable/RecJetTable.tex");
+ ofstream dataFile(Form("%s",OutTexFile));
   
   char Str1[100],Str2[100],Str3[100];
   sprintf(Str1,"\\hline");
@@ -1400,6 +1505,18 @@ void MakeRecJetPlots(TFile *file_in, TFile *file_out, Double_t RecJetPtMin)
   
   dataFile<<Str3<<"end{document}"<<endl<<endl;
 
+
+
+
+
+
+
+
+
+
+
+
+  
   //===================================================================================//
   //============== write histograms inside the output file ============================//
   //==================================================================================//

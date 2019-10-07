@@ -683,14 +683,12 @@ void MakeMuonIDVarStudy(TFile *file_in)
 					 "histMuonTrkQuality","histMuonMuStations","histMuonIsGlobal","histMuonIsTracker",
 					 "histMuonDR"};
 
-
   //Array of Histogram Names For Unmatched Muons
   const char NameNGMuIDCuts[NIDCuts][100]={"histNGMuonD0","histNGMuonDz","histNGMuonChi2NDF","histNGMuonInnerD0","histNGMuonInnerD0Err",
 					   "histNGMuonInnerDz","histNGMuonInnerDzErr","histNGMuonInnerD0Norm","histNGMuonInnerDzNorm",
 					   "histNGMuonTrkLayers","histNGMuonPixelLayers","histNGMuonPixelHits","histNGMuonMuHits",
 					   "histNGMuonTrkQuality","histNGMuonMuStations","histNGMuonIsGlobal","histNGMuonIsTracker",
 					   "histNGMuonDR"};
-
 
   //Array of Names For saving the plots
   const char PlotNamesMuIDCuts[NIDCuts][100]={"MuonD0","MuonDz","MuonChi2NDF","MuonInnerD0","MuonInnerD0Err",
@@ -699,10 +697,7 @@ void MakeMuonIDVarStudy(TFile *file_in)
 					      "MuonTrkQuality","MuonMuStations","isGlobal","isTracker","MuonInnerDR"};
 
 
-
-  
-  
-  
+    
   //Int_t TightMuonIDCuts(Int_t isGlobal, Int_t isTracker, float muEta, float muChi2NDF, float muInnerD0, float muInnerDz, Int_t muMuonHits, Int_t muStations, Int_t muTrkLayers, Int_t muPixelHits){
   //Int_t SelectMuon =0;
   //if( isGlobal==1 && isTracker==1 && TMath::Abs(muEta) < 2.4 &&  (muChi2NDF != -99 && muChi2NDF < 10) && TMath::Abs(muInnerD0) < 0.2 && TMath::Abs(muInnerDz) < 0.5
@@ -817,13 +812,16 @@ void MakeMuonIDVarStudy(TFile *file_in)
    MuIDCutValueMax[16]=1;
 
 
+   //Mu DR (no cut as of now) 
+   //MuIDCutValueMin[17]=0.0;
+   //MuIDCutValueMax[17]=0.3;
+   
+   //PROPOSED CUT IS 0.01 < DR < 0.3
+   //It will remove a lot of pions
    //MuIDCutValueMin[17]=0.005;
-   MuIDCutValueMin[17]=0.0;
+   MuIDCutValueMin[17]=0.01;
    MuIDCutValueMax[17]=0.3;
-
-
-
-
+   
 
 
 
@@ -856,7 +854,7 @@ void MakeMuonIDVarStudy(TFile *file_in)
 
             
       ANGMuIDCuts[i]=(TH1D*)file_in->Get(NameNGMuIDCuts[i]);
-      //Scalling histograms with their intgrals
+      //Scalling histograms with their integrals
       MuPlotMethod->ScaleHistByItsIntegral(ANGMuIDCuts[i]);
       ANGMuIDCuts[i]->SetMarkerStyle(24);
       ANGMuIDCuts[i]->SetMarkerColor(1);
@@ -982,6 +980,351 @@ void MakeMuonIDVarStudy(TFile *file_in)
 
 
 }
+
+
+void MakeJetMuonIDVarStudy(TFile *file_in)
+{
+
+  setTDRStyle();
+  gStyle->SetPadBottomMargin(0.2);
+  TH1::SetDefaultSumw2();
+  
+
+  TLatex *tb = new TLatex();
+  tb->SetNDC();
+  tb->SetTextColor(kBlack);
+  tb->SetTextSize(0.04);
+  
+  
+  TLatex *tr = new TLatex();
+  tr->SetNDC();
+  tr->SetTextColor(kRed);
+  tr->SetTextSize(0.04);
+  
+  char LatexChar[400];
+  
+  //===================================================================================//
+  //================== Get the histograms for MC Matched Muons ========================//
+  //===================================================================================//
+  
+  
+  const int NIDCuts = 18;
+  TH1D *AMuIDCuts[NIDCuts];
+  TH1D *ANGMuIDCuts[NIDCuts];
+  
+  //Array of Histogram Names
+  const char NameMuIDCuts[NIDCuts][100]={"histJetMuonD0","histJetMuonDz","histJetMuonChi2NDF","histJetMuonInnerD0","histJetMuonInnerD0Err",
+					 "histJetMuonInnerDz","histJetMuonInnerDzErr","histJetMuonInnerD0Norm","histJetMuonInnerDzNorm",
+					 "histJetMuonTrkLayers","histJetMuonPixelLayers","histJetMuonPixelHits","histJetMuonMuHits",
+					 "histJetMuonTrkQuality","histJetMuonMuStations","histJetMuonIsGlobal","histJetMuonIsTracker",
+					 "histJetMuonDR"};
+  
+  //Array of Histogram Names For Unmatched JetMuons
+  const char NameNGMuIDCuts[NIDCuts][100]={"histNGJetMuonD0","histNGJetMuonDz","histNGJetMuonChi2NDF","histNGJetMuonInnerD0","histNGJetMuonInnerD0Err",
+					   "histNGJetMuonInnerDz","histNGJetMuonInnerDzErr","histNGJetMuonInnerD0Norm","histNGJetMuonInnerDzNorm",
+					   "histNGJetMuonTrkLayers","histNGJetMuonPixelLayers","histNGJetMuonPixelHits","histNGJetMuonMuHits",
+					   "histNGJetMuonTrkQuality","histNGJetMuonMuStations","histNGJetMuonIsGlobal","histNGJetMuonIsTracker",
+					   "histNGJetMuonDR"};
+
+  //Array of Names For saving the plots
+  const char PlotNamesMuIDCuts[NIDCuts][100]={"JetMuonD0","JetMuonDz","JetMuonChi2NDF","JetMuonInnerD0","JetMuonInnerD0Err",
+					      "JetMuonInnerDz","JetMuonInnerDzErr","JetMuonInnerD0Norm","JetMuonInnerDzNorm",
+					      "JetMuonTrkLayers","JetMuonPixelLayers","JetMuonPixelHits","JetMuonMuHits",
+					      "JetMuonTrkQuality","JetMuonMuStations","isGlobal","isTracker","JetMuonInnerDR"};
+
+
+    
+  //Int_t TightMuonIDCuts(Int_t isGlobal, Int_t isTracker, float muEta, float muChi2NDF, float muInnerD0, float muInnerDz, Int_t muMuonHits, Int_t muStations, Int_t muTrkLayers, Int_t muPixelHits){
+  //Int_t SelectMuon =0;
+  //if( isGlobal==1 && isTracker==1 && TMath::Abs(muEta) < 2.4 &&  (muChi2NDF != -99 && muChi2NDF < 10) && TMath::Abs(muInnerD0) < 0.2 && TMath::Abs(muInnerDz) < 0.5
+  //  && muMuonHits > 0 && muStations > 1 && muTrkLayers > 5 && muPixelHits > 0){SelectMuon =1;}
+  //return SelectMuon;
+  //}
+
+  //Mu ID Cut Values (edges included)
+  Double_t MuIDCutValueMin[NIDCuts]={0.0};
+  Double_t MuIDCutValueMax[NIDCuts]={0.0}; 
+
+  //Muon Dz (cut is abs(d0)<0.2)
+   MuIDCutValueMin[0]=-0.2;
+   MuIDCutValueMax[0]=0.2;
+
+  
+  //Muon D0 (cut is abs(dz)<0.5)
+   MuIDCutValueMin[1]=-0.5;
+   MuIDCutValueMax[1]=0.5;
+ 
+
+
+   //Muon Chi2ByNDF (cut is Chi2NDF < 10)
+   //MuIDCutValueMin[2]=0.0;
+   //MuIDCutValueMax[2]=10.0;
+   
+   //PROPOSED Muon Chi2ByNDF (cut is Chi2NDF < 2)
+   MuIDCutValueMin[2]=0.0;
+   MuIDCutValueMax[2]=2.0;
+   
+   
+   //Muon Inner D0 (cut is abs(d0)<0.2)
+   MuIDCutValueMin[3]=-0.2;
+   MuIDCutValueMax[3]=0.2;
+  
+
+   //Muon Inner D0 Error(no cut)
+   MuIDCutValueMin[4]=-999;
+   MuIDCutValueMax[4]=999;
+   
+  
+   //Muon Inner Dz (cut is abs(dz)<0.5)
+   MuIDCutValueMin[5]=-0.5;
+   MuIDCutValueMax[5]=0.5;
+
+
+   //Muon Inner Dz Error(no cut)
+   MuIDCutValueMin[6]=-999;
+   MuIDCutValueMax[6]=999;
+   
+   
+   //Muon Inner D0 Norm (we use no cut for this)
+   MuIDCutValueMin[7]=-3.0;
+   MuIDCutValueMax[7]=3.0;
+  
+
+   //Muon Inner Dz Norm (we use no cut for this)
+   MuIDCutValueMin[8]=-3.0;
+   MuIDCutValueMax[8]=3.0;
+   
+   //Muon Track Layers (cut is > 5)
+   MuIDCutValueMin[9]=6;
+   MuIDCutValueMax[9]=18;
+   
+   //PROPOSED Muon Track Layers (cut is > 8)
+   //MuIDCutValueMin[9]=9;
+   //MuIDCutValueMax[9]=18;
+   
+  
+
+   //Muon Pixel Layers (We use no cut for this)
+   MuIDCutValueMin[10]=-999;
+   MuIDCutValueMax[10]=999;
+
+  
+
+   //Muon Pixel Hits (cut is PixelHits >0)
+   MuIDCutValueMin[11]=1;
+   MuIDCutValueMax[11]=10;
+
+   //PROPOSED Muon Pixel Hits (cut is PixelHits >1)
+   //MuIDCutValueMin[11]=2;
+   //MuIDCutValueMax[11]=10;
+
+  
+   //Muon MuHits (cut is MuHits >0)
+   MuIDCutValueMin[12]=1;
+   MuIDCutValueMax[12]=49;
+   
+   
+   
+   //Muon Trk Quality (We use no cut for this)
+   MuIDCutValueMin[13]=-999;
+   MuIDCutValueMax[13]=999;
+   
+   //MuonMuStations (cuts is MuStations >1) 
+   MuIDCutValueMin[14]=2;
+   MuIDCutValueMax[14]=5;
+   
+   //PROPOSED MuonMuStations (cuts is MuStations >2) 
+   //MuIDCutValueMin[14]=3;
+   //MuIDCutValueMax[14]=5;
+
+
+   //Muon is Global (cuts isGlobal ==1) 
+   MuIDCutValueMin[15]=1;
+   MuIDCutValueMax[15]=1;
+
+   //Muon is Tracker (cuts isTracker ==1) 
+   MuIDCutValueMin[16]=1;
+   MuIDCutValueMax[16]=1;
+
+   //Mu DR (no cut as of now) 
+   MuIDCutValueMin[17]=0.0;
+   MuIDCutValueMax[17]=0.3;
+
+   //PROPOSED CUT IS 0.01 < DR < 0.3
+   //It will remove a lot of pions
+   //MuIDCutValueMin[17]=0.005;
+   //MuIDCutValueMin[17]=0.01;
+   //MuIDCutValueMax[17]=0.3;
+
+
+  
+  //Define graphs to plot lines on the plots for the cut values
+  TGraph *line1_MuIDCut[NIDCuts];
+  TGraph *line2_MuIDCut[NIDCuts];
+
+  
+  TLegend *lgd_MuIDVar[NIDCuts];
+
+  
+  for(int i=0;i<NIDCuts;i++)
+    {
+      cout<<"Getting histo "<<NameMuIDCuts[i]<<endl;
+      AMuIDCuts[i]=(TH1D*)file_in->Get(NameMuIDCuts[i]);
+      //Scalling histograms with their intgrals
+      MuPlotMethod->ScaleHistByItsIntegral(AMuIDCuts[i]);
+      AMuIDCuts[i]->SetMarkerStyle(20);
+      AMuIDCuts[i]->SetMarkerColor(2);
+      AMuIDCuts[i]->SetLineColor(2);
+      if(i==17)AMuIDCuts[i]->GetXaxis()->SetTitle("#sqrt{(d0)^{2}+(dz)^{2}}");
+      
+      //cout<<" title "<<AMuIDCuts[i]->GetXaxis()->GetTitle()<<endl;
+ 
+
+      
+      cout<<"Getting histo NG"<<NameNGMuIDCuts[i]<<endl<<endl;
+
+            
+      ANGMuIDCuts[i]=(TH1D*)file_in->Get(NameNGMuIDCuts[i]);
+      //Scalling histograms with their integrals
+      MuPlotMethod->ScaleHistByItsIntegral(ANGMuIDCuts[i]);
+      ANGMuIDCuts[i]->SetMarkerStyle(24);
+      ANGMuIDCuts[i]->SetMarkerColor(1);
+      ANGMuIDCuts[i]->SetLineColor(1);
+
+
+      lgd_MuIDVar[i] = MuPlotMethod->MyLegend(0.657,0.772,0.996,0.871);
+      if(i==9){lgd_MuIDVar[i] = MuPlotMethod->MyLegend(0.185,0.770,0.525,0.870);}
+      lgd_MuIDVar[i]->SetTextSize(0.04);
+      lgd_MuIDVar[i]->AddEntry(AMuIDCuts[i],"Matched","P");
+      lgd_MuIDVar[i]->AddEntry(ANGMuIDCuts[i],"NoMatch","P");
+
+
+      line1_MuIDCut[i]= new TGraph(2);
+      line1_MuIDCut[i]->SetLineColor(2);
+      line1_MuIDCut[i]->SetPoint(0,MuIDCutValueMin[i],0);
+      line1_MuIDCut[i]->SetPoint(1,MuIDCutValueMin[i],TMath::Max((AMuIDCuts[i]->GetMaximum()),(ANGMuIDCuts[i]->GetMaximum())));
+
+      line2_MuIDCut[i] = new TGraph(2);
+      line2_MuIDCut[i]->SetLineColor(2);
+      line2_MuIDCut[i]->SetPoint(0,MuIDCutValueMax[i],0);
+      line2_MuIDCut[i]->SetPoint(1,MuIDCutValueMax[i],TMath::Max((AMuIDCuts[i]->GetMaximum()),(ANGMuIDCuts[i]->GetMaximum())));
+
+      Double_t Frac_MuID = FractionInsideCut(AMuIDCuts[i],MuIDCutValueMin[i],MuIDCutValueMax[i]);
+
+      Double_t Frac_NGMuID = FractionInsideCut(ANGMuIDCuts[i],MuIDCutValueMin[i],MuIDCutValueMax[i]);
+
+
+      
+
+      
+      new TCanvas;
+      if(i==17){
+	ANGMuIDCuts[i]->Draw();
+	AMuIDCuts[i]->Draw("same");
+      }
+      else{
+	AMuIDCuts[i]->Draw();
+	ANGMuIDCuts[i]->Draw("same");
+      }
+
+      line1_MuIDCut[i]->Draw("lsame");
+      line2_MuIDCut[i]->Draw("lsame");
+      lgd_MuIDVar[i]->Draw("Psame");
+
+      sprintf(LatexChar,"In Frac. %0.3f",Frac_MuID);
+      
+      if(i==9){tr->DrawLatex(0.18,0.7,LatexChar);}
+      else{tr->DrawLatex(0.70,0.7,LatexChar);}
+
+      sprintf(LatexChar,"In Frac. %0.3f",Frac_NGMuID);
+      if(i==9){tb->DrawLatex(0.18,0.65,LatexChar);}
+      else{tb->DrawLatex(0.70,0.65,LatexChar);}
+      
+      gPad->SaveAs(Form("Plots/MuonPlots/JetMuonIDPlots/%s.pdf",PlotNamesMuIDCuts[i]));
+      gPad->SaveAs(Form("Plots/MuonPlots/JetMuonIDPlots/%s.png",PlotNamesMuIDCuts[i]));
+
+
+      // save in log
+      new TCanvas;
+      gPad->SetLogy(1);
+      if(i==17){
+	ANGMuIDCuts[i]->Draw();
+	AMuIDCuts[i]->Draw("same");
+      }
+      else{
+	AMuIDCuts[i]->Draw();
+	ANGMuIDCuts[i]->Draw("same");
+      }
+      //AMuIDCuts[i]->Draw();
+      //ANGMuIDCuts[i]->Draw("same");
+      line1_MuIDCut[i]->Draw("lsame");
+      line2_MuIDCut[i]->Draw("lsame");
+      lgd_MuIDVar[i]->Draw("Psame");
+
+      sprintf(LatexChar,"In Frac. %0.3f",Frac_MuID);
+      
+      if(i==9){tr->DrawLatex(0.18,0.7,LatexChar);}
+      else{tr->DrawLatex(0.70,0.7,LatexChar);}
+
+      sprintf(LatexChar,"In Frac. %0.3f",Frac_NGMuID);
+      if(i==9){tb->DrawLatex(0.18,0.65,LatexChar);}
+      else{tb->DrawLatex(0.70,0.65,LatexChar);}
+
+      gPad->SaveAs(Form("Plots/MuonPlots/JetMuonIDPlots/LogPlot_%s.pdf",PlotNamesMuIDCuts[i]));
+      gPad->SaveAs(Form("Plots/MuonPlots/JetMuonIDPlots/LogPlot_%s.png",PlotNamesMuIDCuts[i]));
+
+      
+    }
+
+
+  TH2D *MuDxyDz =(TH2D*)file_in->Get("histMuonDxyDz");
+  MuDxyDz->GetXaxis()->SetTitle("Mu D0");
+  MuDxyDz->GetYaxis()->SetTitle("Mu Dz");
+
+  Double_t MuNorm = 1.0/MuDxyDz->Integral();
+  MuDxyDz->Scale(MuNorm);
+  
+  TH2D *NGMuDxyDz =(TH2D*)file_in->Get("histNGMuonDxyDz");
+  NGMuDxyDz->GetXaxis()->SetTitle("NGMu D0");
+  NGMuDxyDz->GetYaxis()->SetTitle("NGMu Dz");
+
+  Double_t NGMuNorm = 1.0/NGMuDxyDz->Integral();
+  NGMuDxyDz->Scale(NGMuNorm);
+
+
+
+  TH2D *Ratio_NGMuDxyDz_MuDxyDz = (TH2D*)NGMuDxyDz->Clone();
+  Ratio_NGMuDxyDz_MuDxyDz->Divide(MuDxyDz);
+
+  
+  //TCanvas *Canvas_MuDxyDz = new TCanvas("Canvas_MuDxyDz","Canvas_MuDxyDz",1200,400);
+  TCanvas *Canvas_MuDxyDz = new TCanvas("Canvas_MuDxyDz","Canvas_MuDxyDz",800,400);
+  Canvas_MuDxyDz->Divide(2,1);//coulmn x row
+  
+  
+  Canvas_MuDxyDz->cd(1);
+  gPad->SetRightMargin(0.12);
+  MuDxyDz->Draw("colz");
+  
+  Canvas_MuDxyDz->cd(2);
+  gPad->SetRightMargin(0.12);
+  NGMuDxyDz->Draw("colz");
+
+  //Canvas_MuDxyDz->cd(3);
+  //gPad->SetRightMargin(0.12);
+  //Ratio_NGMuDxyDz_MuDxyDz->Draw("colz");
+
+  Canvas_MuDxyDz->SaveAs("Plots/MuonPlots/JetMuonIDPlots/MuDxyDz.pdf");
+  Canvas_MuDxyDz->SaveAs("Plots/MuonPlots/JetMuonIDPlots/MuDxyDz.png");
+
+
+}
+
+
+
+
+
+
 
 
 Double_t FractionInsideCut(TH1D *InHist, Double_t CutValueMin, Double_t CutValueMax)

@@ -436,8 +436,8 @@ void JetAnalyzer::Loop()
        //====== light jets
        if(abs(GenPartonFlavour)==1 || abs(GenPartonFlavour)==2 ||abs(GenPartonFlavour)==3) histGenJetPtLight->Fill(GenJetPt,EventWeight);
 
-       if(abs(GenPartonFlavour)==1)histGenJetPtUp->Fill(GenJetPt,EventWeight);
-       if(abs(GenPartonFlavour)==2)histGenJetPtDown->Fill(GenJetPt,EventWeight);
+       if(abs(GenPartonFlavour)==1)histGenJetPtDown->Fill(GenJetPt,EventWeight);
+       if(abs(GenPartonFlavour)==2)histGenJetPtUp->Fill(GenJetPt,EventWeight);
        if(abs(GenPartonFlavour)==3)histGenJetPtStrange->Fill(GenJetPt,EventWeight);
        if(abs(GenPartonFlavour)==4)histGenJetPtCharm->Fill(GenJetPt,EventWeight);
        if(abs(GenPartonFlavour)==5)histGenJetPtBeauty->Fill(GenJetPt,EventWeight);
@@ -498,8 +498,8 @@ void JetAnalyzer::Loop()
 	 	 
 	 histGenMuonGenJetPtTotal->Fill(GenJetPt,EventWeight);
 	 if(abs(GenPartonFlavour)==1 || abs(GenPartonFlavour)==2 ||abs(GenPartonFlavour)==3) histGenMuonGenJetPtLight->Fill(GenJetPt,EventWeight);
-	 if(abs(GenPartonFlavour)==1)histGenMuonGenJetPtUp->Fill(GenJetPt,EventWeight);
-	 if(abs(GenPartonFlavour)==2)histGenMuonGenJetPtDown->Fill(GenJetPt,EventWeight);
+	 if(abs(GenPartonFlavour)==1)histGenMuonGenJetPtDown->Fill(GenJetPt,EventWeight);
+	 if(abs(GenPartonFlavour)==2)histGenMuonGenJetPtUp->Fill(GenJetPt,EventWeight);
 	 if(abs(GenPartonFlavour)==3)histGenMuonGenJetPtStrange->Fill(GenJetPt,EventWeight);
 	 if(abs(GenPartonFlavour)==4)histGenMuonGenJetPtCharm->Fill(GenJetPt,EventWeight);
 	 if(abs(GenPartonFlavour)==5)histGenMuonGenJetPtBeauty->Fill(GenJetPt,EventWeight);
@@ -628,6 +628,7 @@ void JetAnalyzer::Loop()
        //MuonsWithIdForJets is a vector of type MyParticle
        //I push a Muon inside which have all the IDCuts
        //also the MC matching info
+       
        MuonsWithIdForJets.push_back(MuonWithID);
        
 
@@ -817,8 +818,9 @@ void JetAnalyzer::Loop()
 	if(PartonFlavour == 0 || PartonFlavour == -999) histJetPtUnknown->Fill(JetPt,EventWeight);
 
 	if(abs(PartonFlavour)==1 || abs(PartonFlavour)==2 ||abs(PartonFlavour)==3) histJetPtLight->Fill(JetPt,EventWeight);
-	if(abs(PartonFlavour)==1)histJetPtUp->Fill(JetPt,EventWeight);
-	if(abs(PartonFlavour)==2)histJetPtDown->Fill(JetPt,EventWeight);
+
+	if(abs(PartonFlavour)==1)histJetPtDown->Fill(JetPt,EventWeight);
+	if(abs(PartonFlavour)==2)histJetPtUp->Fill(JetPt,EventWeight);
 	if(abs(PartonFlavour)==3)histJetPtStrange->Fill(JetPt,EventWeight);
 	if(abs(PartonFlavour)==4)histJetPtCharm->Fill(JetPt,EventWeight);
 	if(abs(PartonFlavour)==5)histJetPtBeauty->Fill(JetPt,EventWeight);
@@ -887,8 +889,8 @@ void JetAnalyzer::Loop()
 
 	  if(abs(PartonFlavour)==1 || abs(PartonFlavour)==2 ||abs(PartonFlavour)==3) histMuonJetPtLight->Fill(JetPt,EventWeight);
 
-	  if(abs(PartonFlavour)==1)  histMuonJetPtUp->Fill(JetPt,EventWeight);
-	  if(abs(PartonFlavour)==2)  histMuonJetPtDown->Fill(JetPt,EventWeight);
+	  if(abs(PartonFlavour)==1)  histMuonJetPtDown->Fill(JetPt,EventWeight);
+	  if(abs(PartonFlavour)==2)  histMuonJetPtUp->Fill(JetPt,EventWeight);
 	  if(abs(PartonFlavour)==3)  histMuonJetPtStrange->Fill(JetPt,EventWeight);
 	  if(abs(PartonFlavour)==4)  histMuonJetPtCharm->Fill(JetPt,EventWeight);
 	  if(abs(PartonFlavour)==5)  histMuonJetPtBeauty->Fill(JetPt,EventWeight);
@@ -971,8 +973,13 @@ void JetAnalyzer::Loop()
 	  float Mu_D0 = MatchedMuonWithId.GetParticle_D0();
 	  float Mu_Dz = MatchedMuonWithId.GetParticle_Dz();
 	  float Mu_chi2ndf = MatchedMuonWithId.GetParticle_chi2ndf();
+
 	  float Mu_innerD0 =  MatchedMuonWithId.GetParticle_innerD0();
 	  float Mu_innerDz =  MatchedMuonWithId.GetParticle_innerDz();
+
+	  float Mu_innerDR =  TMath::Sqrt((Mu_innerD0*Mu_innerD0)+(Mu_innerDz*Mu_innerDz));
+
+
 	  float Mu_muonHits = MatchedMuonWithId.GetParticle_muonHits();
 	  Int_t Mu_stations = MatchedMuonWithId.GetParticle_stations();
 	  //new quality cuts added for histos	
@@ -981,15 +988,43 @@ void JetAnalyzer::Loop()
 	  float Mu_innerD0Norm =  MatchedMuonWithId.GetParticle_innerD0Norm();
 	  float Mu_innerDzNorm =  MatchedMuonWithId.GetParticle_innerDzNorm();
 	  Int_t Mu_trkQuality = MatchedMuonWithId.GetParticle_trkQuality();
-
-
+	  Int_t Mu_MCMatch = MatchedMuonWithId.GetParticle_MCMatch();
 
 	  
+
+
+	  //1. All cuts other than Dxy and Dz
+	  //2. Tight Chi2 Cut
+	  //3. Loose DR cut
+	  if((TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,10)==1)
+	     && Mu_chi2ndf < 2.0 && (Mu_innerDR > 0.005 && Mu_innerDR < 0.3)){
+	    hist_Master_JetPt_MuPt_Flavour_ModCuts->Fill(JetPt,MatchedMuonWithId.Pt(),PartonFlavour_Local,EventWeight);
+	  }
+
+	  //Filling the sparse
+	  //Jet Pt
+	  Fill_hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch[0]=JetPt;
+	  //Muon Pt
+	  Fill_hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch[1]=MatchedMuonWithId.Pt();
+	  //Jet Flavour
+	  Fill_hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch[2]=PartonFlavour_Local;
+	  //Mu Chi2/NDF
+	  Fill_hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch[3]=Mu_chi2ndf;
+	  //Mu DR
+	  Fill_hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch[4]=Mu_innerDR;
+	  //Mu MC Match
+	  Fill_hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch[5]=Mu_MCMatch;
+
+	  //1. All cuts other than Dxy and Dz
+	  if((TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,10)==1)){
+	      hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch->Fill(Fill_hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch,EventWeight);
+	    }
+
+
+
 	  //=========== fill here histos with JetMatched muons which have a Gen Muon ====================//
 
-	  if(MatchedMuonWithId.GetParticle_MCMatch()==1){
-
-
+	  if(Mu_MCMatch==1){
 
 	    //cuts used in the analysis
 	    if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,1)==1){histJetMuonIsGlobal->Fill(Mu_isGlobal,EventWeight);}
@@ -1004,12 +1039,11 @@ void JetAnalyzer::Loop()
 	 
 
 	    if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,10)==1){
-	   
+
 	      histJetMuonDxyDz->Fill(Mu_innerD0,Mu_innerDz,EventWeight);
-	      histJetMuonDR->Fill(TMath::Sqrt((Mu_innerD0*Mu_innerD0)+(Mu_innerDz*Mu_innerDz)),EventWeight);
+
+	      histJetMuonDR->Fill(Mu_innerDR,EventWeight);
 	    }
-
-
 
 	    //cuts not used in the analysis studied after applying all other cuts
 	    if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,0)==1){
@@ -1024,13 +1058,11 @@ void JetAnalyzer::Loop()
 	      histJetMuonPixelLayers->Fill(Mu_pixelLayers,EventWeight);
 	      histJetMuonTrkQuality->Fill(Mu_trkQuality,EventWeight);
 	    }
-
-
 	  }
 
 	  //=========== fill here histos with All JetMatched muons which dont have gen muon ==============//
 
-	  if(MatchedMuonWithId.GetParticle_MCMatch()==0){
+	  if(Mu_MCMatch==0){
 
 	    if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,1)==1){histNGJetMuonIsGlobal->Fill(Mu_isGlobal,EventWeight);}
 	    if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,2)==1){histNGJetMuonIsTracker->Fill(Mu_isTracker,EventWeight);}
@@ -1042,12 +1074,12 @@ void JetAnalyzer::Loop()
 	    if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,8)==1){histNGJetMuonTrkLayers->Fill(Mu_trkLayers,EventWeight);}
 	    if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,9)==1){histNGJetMuonPixelHits->Fill(Mu_pixelHits,EventWeight);}
 	    //all other cuts except dxy and dz
-	 
+	    
 	    if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,10)==1){
 	      histNGJetMuonDxyDz->Fill(Mu_innerD0,Mu_innerDz,EventWeight);
-	      histNGJetMuonDR->Fill(TMath::Sqrt((Mu_innerD0*Mu_innerD0)+(Mu_innerDz*Mu_innerDz)),EventWeight);
+	      histNGJetMuonDR->Fill(Mu_innerDR,EventWeight);
 	    }
-	 
+	    
 	    //cuts not used in the analysis studied after applying all other cuts
 	    if(TightMuonIDCuts_OtherThanStudied(Mu_isGlobal,Mu_isTracker,Mu_chi2ndf,Mu_D0,Mu_Dz,Mu_muonHits,Mu_stations,Mu_trkLayers,Mu_pixelHits,0)==1){
 	      histNGJetMuonIsPF->Fill(Mu_isPF,EventWeight);
@@ -1063,17 +1095,17 @@ void JetAnalyzer::Loop()
 	    }
 	  }
 	  
-	}//if smallest
+	}//if smallest DR
 	
-
+	
       }//pf Jet Loop
-
+      
       if(DEBUG_LEVEL ==2){cout<<" out of pf Jet loop "<<endl;}
       //============= Estimate of how many muons are inside each jet ======================// 
       /****************************************************************************************/
       // ALL THE MUONS PROPERTIES WHICH HAVE DELTA R < 0.4 WITH JETS
       //FILL HISTOGRAMS HERE
-     /*************************************************************************************/
+      /*************************************************************************************/
       for (int i=0; i<NPFJETS;i++) {
 	
 	histMatchedMuonsDR04Size->Fill(AllMatchedMuons_DR04[i].size(),EventWeight);
@@ -2361,6 +2393,8 @@ void JetAnalyzer::Loop()
   hist_Master_JetPt_MuPt_Flavour_ProjZ->Write();
 
 
+  hist_Master_JetPt_MuPt_Flavour_ModCuts->Write();
+
 
   hist_Master_JetPt_MuPtRel_Flavour->Write();
   hist_Master_JetPt_MuPtRel_Flavour_ProjX->Write();
@@ -2436,7 +2470,9 @@ void JetAnalyzer::Loop()
   histNGJetMuonDxyDz->Write();
   histNGJetMuonDR->Write();
 
-   
+
+  hsparse_JetPt_MuPt_Flavour_MuChi2NDF_MuDR_MuMCMatch->Write();
+  
 }//Loop
 
 

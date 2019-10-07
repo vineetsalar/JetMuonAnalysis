@@ -1,14 +1,8 @@
 #include "MyMethod.h"
 
 
-
-
-
 void MakeGenJetPlots(TFile *file_in, Double_t GenJetPtMin, Double_t GenMuPtCut)
 {
-  
-  
-  
   
   setTDRStyle();
   gStyle->SetPadBottomMargin(0.2);
@@ -37,10 +31,6 @@ void MakeGenJetPlots(TFile *file_in, Double_t GenJetPtMin, Double_t GenMuPtCut)
   const int NFlvLocal = 6;
   
   MyMethod *GenJetMethod = new MyMethod();
-  
-  
-  
-  
   
 
   // ============================================================================================== //
@@ -208,7 +198,6 @@ void MakeGenJetPlots(TFile *file_in, Double_t GenJetPtMin, Double_t GenMuPtCut)
   GenJetMethod->rebinAsymmetric(hist_GenMuonPt, GenJetMethod->NBins_GenMuonPt_VarSize-1, GenJetMethod->GenMuonPtBinEdges);
   hist_GenMuonPt->GetYaxis()->SetTitle("dN/dp_{T} (GeV/c)^{-1}");
 
-
   //cout<<" Total Number of GenMuons above "<< GenMuPtCut<< " GeV/c pT "<<hist_GenMuonPt->GetEntries()<<endl;
   
   new TCanvas;
@@ -242,8 +231,6 @@ void MakeGenJetPlots(TFile *file_in, Double_t GenJetPtMin, Double_t GenMuPtCut)
 
   
   TH1D *hist_GenMuonGenJetDPhi=(TH1D*)file_in->Get("histGenMuonGenJetDPhi");
-
-  
   new TCanvas;
   gPad->SetLogy(1);
   hist_GenMuonGenJetDPhi->Draw();
@@ -338,11 +325,8 @@ void MakeGenJetPlots(TFile *file_in, Double_t GenJetPtMin, Double_t GenMuPtCut)
   Double_t GenMuonGenJetType[NFlvLocal]={0.5,1.5,2.5,3.5,4.5,5.5};
   
   TGraph *graph_GenMuonGenJetFracGraph = new TGraph (6,GenMuonGenJetType,GenMuonGenJetFrac);
-  
-
   graph_GenMuonGenJetFracGraph->GetXaxis()->SetTitle("JetType");
   graph_GenMuonGenJetFracGraph->GetYaxis()->SetTitle("Jet Fraction");
-
   graph_GenMuonGenJetFracGraph->SetMarkerStyle(21);
   graph_GenMuonGenJetFracGraph->SetMarkerColor(2);
   graph_GenMuonGenJetFracGraph->GetYaxis()->SetRangeUser(0,1);
@@ -400,11 +384,11 @@ void MakeGenJetPlots(TFile *file_in, Double_t GenJetPtMin, Double_t GenMuPtCut)
   TH2D *hist_GenMaster_GenJetPt_Flavour = (TH2D*)file_in->Get("hist_GenMaster_GenJetPt_Flavour");
   
   //================= Get the bins numbers for different flavours ================//
-  Int_t FlavourBinMinForU = hist_GenMaster_GenJetPt_Flavour->GetYaxis()->FindBin(1);
-  Int_t FlavourBinMaxForU = hist_GenMaster_GenJetPt_Flavour->GetYaxis()->FindBin(1);
+  Int_t FlavourBinMinForD = hist_GenMaster_GenJetPt_Flavour->GetYaxis()->FindBin(1);
+  Int_t FlavourBinMaxForD = hist_GenMaster_GenJetPt_Flavour->GetYaxis()->FindBin(1);
   
-  Int_t FlavourBinMinForD = hist_GenMaster_GenJetPt_Flavour->GetYaxis()->FindBin(2);
-  Int_t FlavourBinMaxForD = hist_GenMaster_GenJetPt_Flavour->GetYaxis()->FindBin(2);
+  Int_t FlavourBinMinForU = hist_GenMaster_GenJetPt_Flavour->GetYaxis()->FindBin(2);
+  Int_t FlavourBinMaxForU = hist_GenMaster_GenJetPt_Flavour->GetYaxis()->FindBin(2);
   
   Int_t FlavourBinMinForS = hist_GenMaster_GenJetPt_Flavour->GetYaxis()->FindBin(3);
   Int_t FlavourBinMaxForS = hist_GenMaster_GenJetPt_Flavour->GetYaxis()->FindBin(3);
@@ -540,7 +524,7 @@ void MakeGenJetPlots(TFile *file_in, Double_t GenJetPtMin, Double_t GenMuPtCut)
 
 
   //================================================================================================================//
-  //==================================== Integrated  Gen Jet Fractions with different Gen Jet pT Cuts =====================//
+  //==================================== Integrated  Gen Jet Fractions with different Gen Jet pT Cuts ==============//
   //===============================================================================================================//
   
   const int NJetPtCut =4;
@@ -552,7 +536,7 @@ void MakeGenJetPlots(TFile *file_in, Double_t GenJetPtMin, Double_t GenMuPtCut)
 
   //Array of graphs
   TGraph *graph_GenJetPtCut_GenJetFrac[NJetPtCut];
-
+  
   // Array to Store the Jet Fraction for different flavours
   Double_t  GenJetPtCut_Flavour_Fraction[NJetPtCut][NFlvLocal+1]={0.0};
   
@@ -604,7 +588,7 @@ void MakeGenJetPlots(TFile *file_in, Double_t GenJetPtMin, Double_t GenMuPtCut)
     Double_t t_GenJetFrac[NFlvLocal]={GenJetPtCut_Flavour_Fraction[i][1], GenJetPtCut_Flavour_Fraction[i][2], GenJetPtCut_Flavour_Fraction[i][3],
 				     GenJetPtCut_Flavour_Fraction[i][4],GenJetPtCut_Flavour_Fraction[i][5],GenJetPtCut_Flavour_Fraction[i][6]};
     
-    graph_GenJetPtCut_GenJetFrac[i] = new TGraph ( NFlvLocal, GenMuonGenJetType, t_GenJetFrac);
+    graph_GenJetPtCut_GenJetFrac[i] = new TGraph (NFlvLocal, GenMuonGenJetType, t_GenJetFrac);
     graph_GenJetPtCut_GenJetFrac[i]->SetFillColor(kBlue);
     
     
@@ -1389,8 +1373,6 @@ void MakeGenJetPlots(TFile *file_in, Double_t GenJetPtMin, Double_t GenMuPtCut)
   
   for(int i =0;i<NJetPtCut;i++){
   
-
-
     dataFile<<Str3<<"begin{table}[htb]"<<endl;
     dataFile<<Str3<<"begin{center}"<<endl;
     dataFile<<Str3<<"caption{Gen Jet Fraction  above Jet p$_{T}$ "<< setprecision(1)<<fixed << JetPtCut[i] <<" GeV/c }"<<endl;
@@ -1595,7 +1577,7 @@ void MakeGenJetPlots(TFile *file_in, Double_t GenJetPtMin, Double_t GenMuPtCut)
 
   
   
-dataFile<<Str3<<"end{document}"<<endl<<endl;
+  dataFile<<Str3<<"end{document}"<<endl<<endl;
 
 
 

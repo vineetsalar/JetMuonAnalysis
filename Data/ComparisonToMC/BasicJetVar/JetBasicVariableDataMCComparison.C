@@ -25,7 +25,9 @@ TH1D *Ratio_Hist(TH1D *InHistNum, TH1D *InHistDeno, Int_t index);
 
 TLegend *MyLegend(Double_t x1, Double_t y1, Double_t x2, Double_t y2);
 
-
+Double_t Pol3(Double_t *x, Double_t *par);
+Double_t Pol4(Double_t *x, Double_t *par);
+Double_t JetPtWeight(Double_t JetPt);
 
 void JetBasicVariableDataMCComparison()
 {
@@ -72,9 +74,9 @@ void JetBasicVariableDataMCComparison()
   JetVarMethod->SetHistogramAxisRange(hist_data_JetPhi,-999,-999,0.0,0.05);
   
   // Open the file with PP Dijet MC 
-  //TFile *file_MC =  new TFile("InFiles/JetPlotOutPut_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeVEta24_TighestMuon_RefPartonFlvForB_TriggerApplied_10Sep19_All.root","R");
+  TFile *file_MC =  new TFile("InFiles/JetPlotOutPut_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeVEta24_TighestMuon_RefPartonFlvForB_TriggerApplied_10Sep19_All.root","R");
   //not trigger
-  TFile *file_MC =  new TFile("InFiles/JetPlotOutPut_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeVEta24_TighestMuon_RefPartonFlvForB_10Sep19_All.root","R");
+  //TFile *file_MC =  new TFile("InFiles/JetPlotOutPut_DiJet_PP2017MC_JetPt60GeVEta2MuPt5GeVEta24_TighestMuon_RefPartonFlvForB_10Sep19_All.root","R");
 
   //Get the MC Jet Pt, Eta, Phi histograms
   TH1D *hist_mc_JetPt = (TH1D*)file_MC->Get("RecJetPlots/histJetPt");
@@ -132,14 +134,14 @@ void JetBasicVariableDataMCComparison()
   TLegend *lgd_DataMC_JetVar = JetVarMethod->MyLegend(0.43,0.72,0.77,0.85); 
   lgd_DataMC_JetVar->AddEntry(hist_data_JetPt,"PP 2017 Data","P");
   lgd_DataMC_JetVar->AddEntry(hist_mc_JetPt,"Pythia DiJet MC","P");
-
+  
   
   Canvas_DataMC_JetVar->cd(1);
   gPad->SetLogy(1);
   hist_data_JetPt->Draw();
   hist_mc_JetPt->Draw("same");
   lgd_DataMC_JetVar->Draw("same");
-
+  
   
   Canvas_DataMC_JetVar->cd(2);
   hist_data_JetEta->Draw();
@@ -162,15 +164,51 @@ void JetBasicVariableDataMCComparison()
   hist_Ratio_Data_MC_JetPhi->GetYaxis()->SetRangeUser(0.0,1.3);
   hist_Ratio_Data_MC_JetPhi->Draw();
 
-
-  
-  
-
   Canvas_DataMC_JetVar->SaveAs("Plots/DataMC_JetVar.pdf");
   Canvas_DataMC_JetVar->SaveAs("Plots/DataMC_JetVar.png");
 
-  
 
+
+  // create a Pol3 with the range from 60 to 500 and 4 parameters
+  TF1 *Func_WeightMCJetPt = new TF1("Func_WeightMCJetPt",Pol3,60,500,4);
+  Func_WeightMCJetPt->SetLineColor(1);
+  
+  TCanvas *Can_WeightMCJetPt = new TCanvas("Can_WeightMCJetPt","Can_WeightMCJetPt",800,400);
+  Can_WeightMCJetPt->Divide(2,1); //C X R
+  Can_WeightMCJetPt->cd(1);
+  hist_Ratio_Data_MC_JetPt->Draw();
+
+  hist_Ratio_Data_MC_JetPt->Fit("Func_WeightMCJetPt","WL","",60,500);
+  Func_WeightMCJetPt->Draw("same");
+
+  cout<<" chi2 "<< Func_WeightMCJetPt->GetChisquare() <<"  NDF  "<< Func_WeightMCJetPt->GetNDF()<<" prob. "<<Func_WeightMCJetPt->GetProb()<<endl;
+
+  //
+  //
+  //Check with a small simulation that we regain the data Jet Pt spectrum 
+  TH1D *hist_mc_JetPt_Reweighted = (TH1D*)hist_mc_JetPt->Clone("hist_mc_JetPt_Reweighted");
+  hist_mc_JetPt_Reweighted->Reset();
+
+  for(int i = 0; i < 10000000; i++){
+
+    Double_t randomNumberJetPt = hist_mc_JetPt->GetRandom();
+    //Double_t weigthJetPt = JetPtWeight->Eval(randomNumberJetPt);
+    Double_t weigthJetPt = JetPtWeight(randomNumberJetPt);
+    hist_mc_JetPt_Reweighted->Fill(randomNumberJetPt,weigthJetPt);
+
+  }
+
+  JetVarMethod->ScaleHistByItsIntegral(hist_mc_JetPt_Reweighted);
+  JetVarMethod->GlamorizeHistogram(hist_mc_JetPt_Reweighted,4,4,24,0.6);
+
+  Can_WeightMCJetPt->cd(2);
+  //hist_mc_JetPt->Draw();
+  hist_data_JetPt->Draw();
+  hist_mc_JetPt_Reweighted->Draw("same");
+
+  Can_WeightMCJetPt->SaveAs("Plots/WeightMCJetPt.pdf");
+  Can_WeightMCJetPt->SaveAs("Plots/WeightMCJetPt.png");
+  
   
 }
 
@@ -207,6 +245,43 @@ TLegend *MyLegend(Double_t x1, Double_t y1, Double_t x2, Double_t y2)
   lgd_GenMuonGenJetFrac->SetFillStyle(0);
   
   return lgd_GenMuonGenJetFrac;
-  
 
 }
+
+//Data-MC Jet Pt reweighting Function
+
+
+
+Double_t JetPtWeight(Double_t JetPt)
+{
+  TF1 *fPtWeightFunction = new TF1("fPtWeightFunction","pol3",0,500);
+  fPtWeightFunction->SetParameters(0.68323,0.00481626,-1.17975e-05,1.13663e-08);
+  Double_t weight = fPtWeightFunction->Eval(JetPt);
+  return weight;
+ 
+}
+
+
+
+
+
+
+
+
+
+//Define a 3 order polinomial
+Double_t Pol3(Double_t *x, Double_t *par) {
+  return par[0] + par[1]*x[0] + par[2]*x[0]*x[0] + par[3]*x[0]*x[0]*x[0];
+}
+
+
+
+//Define a 4 order polinomial
+Double_t Pol4(Double_t *x, Double_t *par) {
+  return par[0] + par[1]*x[0] + par[2]*x[0]*x[0] + par[3]*x[0]*x[0]*x[0] + par[4]*x[0]*x[0]*x[0]*x[0];
+}
+
+
+
+
+
