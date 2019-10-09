@@ -194,7 +194,7 @@ void ReadSlimSkimData::Loop()
     const int DO_TRACK = 0;
     const int DO_TRACK_JET_CORR = 0;
   
-  TFile *OutFile = new TFile("PP2017Data_HLT_MuonJet30_JetPtMin60_JetEtaMax2_MuEtaMax24_MuPtMin5_JetQualityOn.root","RECREATE");
+  TFile *OutFile = new TFile("PP2017Data_HLT_MuonJet30_JetPtMin60_JetEtaMax2_MuEtaMax24_MuPtMin5_JetQualityOn_09Oct2019.root","RECREATE");
   
   //============== Basic Event Level Histo ============================//
   // Centrality
@@ -216,7 +216,7 @@ void ReadSlimSkimData::Loop()
   histEvtVtxY->GetXaxis()->SetTitle("EvtVtxY");
   histEvtVtxY->GetYaxis()->SetTitle("Entries");
 
-  TH1D *histEvtVtxZ= new TH1D("histEvtVtxZ","histEvtVtxZ",200,-25.0,25.0);
+  TH1D *histEvtVtxZ= new TH1D("histEvtVtxZ","histEvtVtxZ",300,-30.0,30.0);
   histEvtVtxZ->GetXaxis()->SetTitle("EvtVtxZ");
   histEvtVtxZ->GetYaxis()->SetTitle("Entries");
 
